@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCare — Sistem Informasi Rumah Sakit</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS Utama -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- HALAMAN LOGIN DOKTER / ADMIN -->
+  <div class="login-wrapper" id="loginWrapper">
+    <div class="login-card">
+      <div class="brand" style="justify-content: center; margin-bottom: 20px;">
+        <div class="brand-icon">✚</div>
+        <div>
+          <div class="brand-name">MediCare</div>
+          <div class="brand-sub">PORTAL RUMAH SAKIT</div>
+        </div>
+      </div>
+      <h2>Silakan Masuk</h2>
+      <p style="font-size: 12px; color: var(--muted); margin-bottom: 20px; text-align: center;">Masuk menggunakan akun dokter atau akses administrator.</p>
+      
+      <form id="loginForm">
+        <div class="field" style="margin-bottom: 15px;">
+          <label>Username</label>
+          <input type="text" id="loginUsername" placeholder="Contoh: dr.rahman" required>
+        </div>
+        <div class="field" style="margin-bottom: 20px;">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="primary-btn" style="width: 100%; justify-content: center;">Masuk ke Portal <span>→</span></button>
+      </form>
+      <div style="text-align: center; margin-top: 15px;">
+        <button type="button" class="link-btn" onclick="bypassAdmin()">Masuk sebagai Administrator (Demo)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APLIKASI UTAMA (SETELAH LOGIN) -->
+  <div class="app hidden" id="appContainer">
+    <!-- Sidebar / Navigasi Samping -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">✚</div>
+        <div>
+          <div class="brand-name">MediCare</div>
+          <div class="brand-sub" id="brandSubRole">HOSPITAL SYSTEM</div>
+        </div>
+      </div>
+      
+      <div class="nav-label">MENU UTAMA</div>
+      <nav class="nav" id="nav">
+        <button class="active" data-page="dashboard"><span class="nav-ico">▦</span>Dashboard</button>
+        <button data-page="pasien" class="admin-only"><span class="nav-ico">♙</span>Data Pasien</button>
+        <button data-page="dokter" class="admin-only"><span class="nav-ico">⚕</span>Data Dokter</button>
+        <button data-page="pemeriksaan"><span class="nav-ico">▤</span>Pemeriksaan</button>
+        <button data-page="obat" class="admin-only"><span class="nav-ico">✚</span>Data Obat</button>
+        <button data-page="resep"><span class="nav-ico">▧</span>Resep Obat</button>
+      </nav>
+
+      <div class="side-bottom">
+        <button class="secondary-btn" style="width: 100%; background: #ffffff12; color: #fff; border: 0;" onclick="logout()">Keluar (Logout)</button>
+      </div>
+    </aside>
+
+    <!-- Area Utama / Main Content -->
+    <main class="main">
+      <header class="topbar">
+        <div style="display:flex; align-items:center">
+          <button class="icon-btn menu-toggle" id="menuToggle">☰</button>
+          <div class="crumb">MediCare <span style="margin:0 8px; color:#c3cbd4">/</span> <b id="crumb">Dashboard</b></div>
+        </div>
+        <div class="top-right">
+          <button class="icon-btn" title="Notifikasi">♧<i class="dot"></i></button>
+          <div class="profile">
+            <div class="avatar" id="userAvatar">AD</div>
+            <div>
+              <div class="profile-name" id="profileName">Administrator</div>
+              <div class="profile-role" id="profileRole">Admin Rumah Sakit</div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <div class="content" id="content"></div>
+    </main>
+  </div>
+
+  <!-- Modal Form Tambah/Edit Data -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <section class="modal">
+      <div class="modal-head">
+        <h2 id="modalTitle">Tambah Data</h2>
+        <button class="close-btn" id="closeModal">×</button>
+      </div>
+      <form id="dataForm">
+        <div class="modal-body">
+          <div class="form-grid" id="formFields"></div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="secondary-btn" id="cancelModal">Batal</button>
+          <button type="submit" class="primary-btn">Simpan Data <span>→</span></button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- Toast Notifikasi -->
+  <div class="toast" id="toast">Data berhasil disimpan</div>
+
+  <!-- Script JS -->
+  <script src="script.js"></script>
+</body>
+</html>
