@@ -92,9 +92,24 @@ if (!$data) {
                     </div>
                     
                     <div class="form-group">
-                        <label>Password</label>
-                        <input type="text" name="password" class="form-control" value="<?php echo $data['password']; ?>" required>
-                    </div>
+    <label>Password</label>
+    <div style="position: relative; display: flex; align-items: center;">
+        <!-- 1. type diubah jadi password, ditambah id="pass_edit", dan padding-right -->
+        <input type="password" id="pass_edit" name="password" class="form-control" value="<?php echo $data['password']; ?>" required style="padding-right: 50px;">
+        
+        <!-- 2. Ikon mata ditambahkan di sini -->
+        <i class="fas fa-eye" id="toggle_icon_edit" onclick="togglePasswordEdit()" style="
+            position: absolute; 
+            right: 15px; 
+            cursor: pointer; 
+            color: var(--text-muted); 
+            font-size: 18px;
+            padding: 10px; 
+            z-index: 10; 
+            transition: 0.3s;
+        "></i>
+    </div>
+</div>
                     
                     <div class="form-group">
                         <label>Nama Lengkap Dokter</label>
@@ -137,6 +152,27 @@ if (!$data) {
             </form>
         </div>
     </div>
+
+    <!-- JAVASCRIPT UNTUK TOGGLE PASSWORD EDIT -->
+    <script>
+        function togglePasswordEdit() {
+            var input = document.getElementById("pass_edit");
+            var icon = document.getElementById("toggle_icon_edit");
+
+            if (input.type === "password") {
+                input.type = "text"; 
+                icon.classList.remove("fa-eye"); 
+                icon.classList.add("fa-eye-slash");
+                icon.style.color = "#f59e0b"; // Warna Oranye (sesuai tema edit)
+            } else {
+                input.type = "password"; 
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+                icon.style.color = "var(--text-muted)"; 
+            }
+        }
+    </script>
+
 
 </body>
 </html>
