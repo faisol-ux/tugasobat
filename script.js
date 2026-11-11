@@ -1,3 +1,8 @@
+'use strict';
+
+/* ============================================================
+   1. Data contoh (hanya di sisi frontend)
+   ============================================================ */
 const seed = {
   pasien: [
     { id: 1, no_registrasi: 'PSN-2026-001', nama_pasien: 'Andi Pratama', alamat: 'Surabaya', tgl_lahir: '1998-04-12' },
@@ -27,17 +32,14 @@ const seed = {
   ]
 };
 
-let db = JSON.parse(JSON.stringify(seed));
-let page = 'dashboard';
-let editing = null;
-let query = '';
-let currentUser = null;
-
-const meta = {
+/* ============================================================
+   2. Konfigurasi halaman, formulir, dan tabel
+   ============================================================ */
+const PAGE_META = {
   pasien: {
     title: 'Data Pasien',
     singular: 'Pasien',
-    icon: '♙',
+    description: 'Kelola identitas dan informasi dasar pasien yang terdaftar.',
     fields: [
       ['no_registrasi', 'Nomor Registrasi', 'text'],
       ['nama_pasien', 'Nama Pasien', 'text'],
@@ -48,7 +50,7 @@ const meta = {
   dokter: {
     title: 'Data Dokter',
     singular: 'Dokter',
-    icon: '⚕',
+    description: 'Data tenaga medis beserta spesialisasi yang aktif bertugas.',
     fields: [
       ['username', 'Username', 'text'],
       ['password', 'Password', 'password'],
@@ -62,10 +64,10 @@ const meta = {
   pemeriksaan: {
     title: 'Pemeriksaan',
     singular: 'Pemeriksaan',
-    icon: '▤',
+    description: 'Catat hasil pemeriksaan dan pantau kondisi pasien.',
     fields: [
-      ['id_pasien', 'Pasien', 'select', () => db.pasien.map(x => [x.id, x.nama_pasien])],
-      ['id_dokter', 'Dokter', 'select', () => db.dokter.map(x => [x.id, x.nama_dokter])],
+      ['id_pasien', 'Pasien', 'select', () => db.pasien.map(row => [row.id, row.nama_pasien])],
+      ['id_dokter', 'Dokter', 'select', () => db.dokter.map(row => [row.id, row.nama_dokter])],
       ['tgl_periksa', 'Tanggal Pemeriksaan', 'date'],
       ['keluhan', 'Keluhan', 'text'],
       ['tensi_darah', 'Tekanan Darah', 'text']
@@ -74,7 +76,7 @@ const meta = {
   obat: {
     title: 'Data Obat',
     singular: 'Obat',
-    icon: '✚',
+    description: 'Kelola ketersediaan obat dan kode inventarisnya.',
     fields: [
       ['kode_obat', 'Kode Obat', 'text'],
       ['nama_obat', 'Nama Obat', 'text']
@@ -83,401 +85,670 @@ const meta = {
   resep: {
     title: 'Resep Obat',
     singular: 'Resep Obat',
-    icon: '▧',
+    description: 'Hubungkan hasil pemeriksaan dengan obat yang diresepkan.',
     fields: [
-      ['id_pemeriksaan', 'Pemeriksaan', 'select', () => db.pemeriksaan.map(x => [x.id, 'Pemeriksaan #' + x.id + ' — ' + nameOf('pasien', x.id_pasien)])],
-      ['id_obat', 'Obat', 'select', () => db.obat.map(x => [x.id, x.nama_obat])]
+      ['id_pemeriksaan', 'Pemeriksaan', 'select', () => db.pemeriksaan.map(row =>
+        [row.id, `Pemeriksaan #${row.id} — ${nameOf('pasien', row.id_pasien)}`])],
+      ['id_obat', 'Obat', 'select', () => db.obat.map(row => [row.id, row.nama_obat])]
     ]
   }
 };
 
-document.getElementById('loginForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const u = document.getElementById('loginUsername').value.trim();
-  const p = document.getElementById('loginPassword').value.trim();
+const TABLE_COLUMNS = {
+  pasien: [
+    ['nama_pasien', 'Nama Pasien'],
+    ['no_registrasi', 'No. Registrasi'],
+    ['alamat', 'Alamat'],
+    ['tgl_lahir', 'Tanggal Lahir']
+  ],
+  dokter: [
+    ['nama_dokter', 'Nama Dokter'],
+    ['spesialis', 'Spesialis'],
+    ['username', 'Username'],
+    ['alamat', 'Alamat']
+  ],
+  pemeriksaan: [
+    ['id', 'ID'],
+    ['id_pasien', 'Pasien'],
+    ['id_dokter', 'Dokter'],
+    ['tgl_periksa', 'Tanggal'],
+    ['keluhan', 'Keluhan'],
+    ['tensi_darah', 'Tekanan Darah']
+  ],
+  obat: [
+    ['kode_obat', 'Kode Obat'],
+    ['nama_obat', 'Nama Obat']
+  ],
+  resep: [
+    ['id', 'ID'],
+    ['id_pemeriksaan', 'Pemeriksaan'],
+    ['id_obat', 'Obat']
+  ]
+};
 
-  const foundDoctor = db.dokter.find(d => d.username === u && d.password === p);
+const COMPACT_COLUMNS = TABLE_COLUMNS.pemeriksaan.slice(0, 5);
+const REFERENCE_KEYS = new Set(['id_pasien', 'id_dokter', 'id_pemeriksaan', 'id_obat']);
+const TODAY = '2026-10-26';
+const TODAY_LABEL = 'Senin, 26 Oktober 2026';
 
-  if (foundDoctor) {
-    currentUser = { role: 'dokter', ...foundDoctor };
-    initSession();
-    notify('Berhasil masuk sebagai ' + foundDoctor.nama_dokter);
-  } else {
-    alert('Username atau password salah! (Coba gunakan: dr.rahman / 123)');
-  }
-});
+/* ============================================================
+   3. State aplikasi
+   ============================================================ */
+let db = JSON.parse(JSON.stringify(seed));
+let page = 'dashboard';
+let editingId = null;
+let searchQuery = '';
+let currentUser = null;
+let toastTimer = null;
 
-function bypassAdmin() {
-  currentUser = { role: 'admin', nama_dokter: 'Administrator', username: 'admin' };
-  initSession();
-  notify('Masuk sebagai Administrator');
-}
+/* ============================================================
+   4. Utilitas
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
 
-function logout() {
-  currentUser = null;
-  document.getElementById('loginWrapper').classList.remove('hidden');
-  document.getElementById('appContainer').classList.add('hidden');
-  document.getElementById('loginForm').reset();
-}
+const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+}[char]));
 
-function initSession() {
-  document.getElementById('loginWrapper').classList.add('hidden');
-  document.getElementById('appContainer').classList.remove('hidden');
+const icon = (name) => `<svg class="icon" aria-hidden="true"><use href="#ico-${name}"/></svg>`;
 
-  if (currentUser.role === 'dokter') {
-    document.getElementById('profileName').textContent = currentUser.nama_dokter;
-    document.getElementById('profileRole').textContent = 'Dokter Spesialis ' + currentUser.spesialis;
-    document.getElementById('userAvatar').textContent = shortName(currentUser.nama_dokter);
-    document.getElementById('brandSubRole').textContent = 'PORTAL DOKTER';
-    document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-  } else {
-    document.getElementById('profileName').textContent = 'Administrator';
-    document.getElementById('profileRole').textContent = 'Admin Rumah Sakit';
-    document.getElementById('userAvatar').textContent = 'AD';
-    document.getElementById('brandSubRole').textContent = 'HOSPITAL SYSTEM';
-    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-  }
-
-  page = 'dashboard';
-  render();
+function shortName(name) {
+  return (name || '')
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 }
 
 function nameOf(type, id) {
-  let x = db[type].find(r => r.id == id);
-  return x ? (x.nama_pasien || x.nama_dokter || x.nama_obat || ('#' + id)) : '—';
+  const row = db[type].find((item) => item.id == id);
+  return row ? (row.nama_pasien || row.nama_dokter || row.nama_obat || `#${id}`) : '—';
 }
 
-function esc(v) {
-  return String(v ?? '').replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[c]));
+function formatDate(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return esc(value);
+  return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-function shortName(s) {
-  return (s || '').split(' ').map(a => a[0]).slice(0, 2).join('').toUpperCase();
+function showToast(message) {
+  const toast = $('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
 }
 
-function stat(label, num, icon, color, foot) {
+/* ============================================================
+   5. Komponen tampilan
+   ============================================================ */
+function statCard({ label, value, iconName, tone, note }) {
   return `
-    <div class="stat-card">
+    <article class="stat-card stat-card--${tone}">
       <div class="stat-top">
         <span class="stat-label">${label}</span>
-        <span class="stat-icon" style="background:${color}">${icon}</span>
+        <span class="stat-icon">${icon(iconName)}</span>
       </div>
-      <div class="stat-number">${num}</div>
-      <div class="stat-foot">${foot}</div>
-    </div>
+      <div class="stat-number">${value}</div>
+      <div class="stat-note">${note}</div>
+    </article>
   `;
 }
 
-function pageHead(title, desc, buttonText) {
-  let showBtn = buttonText && (currentUser.role === 'admin' || page === 'pemeriksaan');
+function pageHeading(title, description, action = '') {
   return `
-    <div class="page-heading">
+    <header class="page-heading">
       <div>
-        <div class="eyebrow">Sistem Informasi Rumah Sakit</div>
+        <span class="eyebrow">Sistem Informasi Rumah Sakit</span>
         <h1>${title}</h1>
-        <p>${desc}</p>
+        <p>${description}</p>
       </div>
-      ${showBtn ? `<button class="primary-btn" onclick="openModal()">＋ ${buttonText}</button>` : ''}
-    </div>
+      ${action}
+    </header>
   `;
 }
 
-function dashboard() {
-  let listPemeriksaan = currentUser.role === 'dokter' 
-    ? db.pemeriksaan.filter(x => x.id_dokter === currentUser.id) 
-    : db.pemeriksaan;
+function cellValue(type, row, key) {
+  if (key === 'id') return `<span class="id-chip">#${esc(row.id)}</span>`;
 
-  return `
-    ${pageHead('Selamat datang, ' + (currentUser.role === 'dokter' ? currentUser.nama_dokter : 'Admin') + ' 👋', currentUser.role === 'dokter' ? 'Berikut jadwal dan aktivitas pemeriksaan Anda.' : 'Berikut ringkasan aktivitas rumah sakit hari ini.', '')}
-    <div class="stats">
-      ${stat('Total Pasien', db.pasien.length, '♙', '#e5efff', 'Data pasien terdaftar')}
-      ${currentUser.role === 'admin' ? stat('Dokter Aktif', db.dokter.length, '⚕', '#e4f7f3', 'Tenaga medis terdaftar') : stat('Pemeriksaan Saya', listPemeriksaan.length, '⚕', '#e4f7f3', 'Total pasien ditangani')}
-      ${stat('Pemeriksaan', db.pemeriksaan.length, '▤', '#fff1dc', 'Total catatan pemeriksaan')}
-      ${stat('Jenis Obat', db.obat.length, '✚', '#f0e9ff', 'Data obat tersedia')}
-    </div>
-    <div class="grid-main">
-      <div>
-        <section class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-title">Aktivitas Pemeriksaan</div>
-              <div class="panel-sub">Ringkasan pemeriksaan mingguan</div>
-            </div>
-            <span class="status done">Minggu ini</span>
-          </div>
-          <div class="chart">
-            ${[['Sen', 3, 2], ['Sel', 5, 3], ['Rab', 4, 3], ['Kam', 6, 3], ['Jum', 8, 5], ['Sab', 4, 2], ['Min', 3, 1]].map(a => `
-              <div class="chart-col">
-                <div class="bar-stack">
-                  <div class="bar" style="height:${a[1] * 13}%"></div>
-                  <div class="bar mainbar" style="height:${a[2] * 19}%"></div>
-                </div>
-                <span class="chart-label">${a[0]}</span>
-              </div>
-            `).join('')}
-          </div>
-          <div class="legend">
-            <span><i style="background:#bfece4"></i>Pasien baru</span>
-            <span><i style="background:#17a895"></i>Pemeriksaan</span>
-          </div>
-        </section>
-        <section class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-title">Pemeriksaan Terbaru</div>
-              <div class="panel-sub">Catatan medis yang baru ditambahkan</div>
-            </div>
-            <button class="link-btn" onclick="go('pemeriksaan')">Lihat semua →</button>
-          </div>
-          ${tableHTML('pemeriksaan', listPemeriksaan.slice(0, 4), true)}
-        </section>
-      </div>
-      <div>
-        <section class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-title">Jadwal Hari Ini</div>
-              <div class="panel-sub">Senin, 26 Oktober 2026</div>
-            </div>
-            <span style="font-size:21px">🗓</span>
-          </div>
-          <div class="appointment-list">
-            ${listPemeriksaan.filter(x => x.tgl_periksa === '2026-10-26').map((x, i) => `
-              <div class="appointment">
-                <div class="datebox">
-                  <b>${String(9 + i * 2).padStart(2, '0')}:00</b>
-                  <span>WIB</span>
-                </div>
-                <div class="appt-info">
-                  <strong>${esc(nameOf('pasien', x.id_pasien))}</strong>
-                  <span>${esc(nameOf('dokter', x.id_dokter))}</span>
-                </div>
-                <span class="status ${i === 0 ? 'done' : 'scheduled'}">${i === 0 ? 'Selesai' : 'Terjadwal'}</span>
-              </div>
-            `).join('') || '<div class="empty">Belum ada jadwal hari ini.</div>'}
-          </div>
-        </section>
-      </div>
-    </div>
-  `;
-}
-
-function cell(type, r, key) {
   if (type === 'pemeriksaan') {
-    if (key === 'id_pasien') return esc(nameOf('pasien', r[key]));
-    if (key === 'id_dokter') return esc(nameOf('dokter', r[key]));
+    if (key === 'id_pasien') return esc(nameOf('pasien', row[key]));
+    if (key === 'id_dokter') return esc(nameOf('dokter', row[key]));
   }
+
   if (type === 'resep') {
-    if (key === 'id_pemeriksaan') return 'Pemeriksaan #' + esc(r[key]);
-    if (key === 'id_obat') return esc(nameOf('obat', r[key]));
+    if (key === 'id_pemeriksaan') return `Pemeriksaan #${esc(row[key])}`;
+    if (key === 'id_obat') return esc(nameOf('obat', row[key]));
   }
-  return esc(r[key]);
+
+  if (key === 'tgl_periksa' || key === 'tgl_lahir') return formatDate(row[key]);
+
+  return esc(row[key]);
 }
 
-function tableHTML(type, rows, compact = false) {
-  let columns = {
-    pasien: [['nama_pasien', 'Nama Pasien'], ['no_registrasi', 'No. Registrasi'], ['alamat', 'Alamat'], ['tgl_lahir', 'Tanggal Lahir']],
-    dokter: [['nama_dokter', 'Nama Dokter'], ['spesialis', 'Spesialis'], ['username', 'Username'], ['alamat', 'Alamat']],
-    pemeriksaan: [['id', 'ID'], ['id_pasien', 'Pasien'], ['id_dokter', 'Dokter'], ['tgl_periksa', 'Tanggal'], ['keluhan', 'Keluhan'], ['tensi_darah', 'Tekanan Darah']],
-    obat: [['kode_obat', 'Kode Obat'], ['nama_obat', 'Nama Obat']],
-    resep: [['id', 'ID'], ['id_pemeriksaan', 'Pemeriksaan'], ['id_obat', 'Obat']]
-  };
-  
-  let cols = columns[type] || columns.pasien;
-  if (compact) cols = columns.pemeriksaan.slice(0, 5);
+function tableMarkup(type, rows, { compact = false } = {}) {
+  const columns = compact ? COMPACT_COLUMNS : TABLE_COLUMNS[type];
+  const showActions = !compact;
+  const columnCount = columns.length + (showActions ? 1 : 0);
+
+  const body = rows.map((row) => {
+    const cells = columns.map(([key]) => {
+      const value = cellValue(type, row, key);
+      const isPerson = key === 'nama_pasien' || key === 'nama_dokter';
+
+      return `
+        <td>
+          ${isPerson
+            ? `<div class="person-cell"><span class="mini-avatar">${shortName(row[key])}</span>${value}</div>`
+            : value}
+        </td>
+      `;
+    }).join('');
+
+    const actions = showActions
+      ? `
+        <td>
+          <div class="actions">
+            <button type="button" class="small-action" data-action="edit" data-id="${row.id}" title="Edit" aria-label="Edit">
+              ${icon('edit')}
+            </button>
+            ${currentUser.role === 'admin'
+              ? `<button type="button" class="small-action" data-action="delete" data-id="${row.id}" title="Hapus" aria-label="Hapus">
+                  ${icon('trash')}
+                </button>`
+              : ''}
+          </div>
+        </td>
+      `
+      : '';
+
+    return `<tr>${cells}${actions}</tr>`;
+  }).join('');
 
   return `
     <div class="table-wrap">
-      <table class="data-table">
+      <table class="data-table${showActions ? ' data-table--actions' : ''}">
         <thead>
           <tr>
-            ${cols.map(c => `<th>${c[1]}</th>`).join('')}
-            ${!compact ? '<th>Aksi</th>' : ''}
+            ${columns.map(([, label]) => `<th>${label}</th>`).join('')}
+            ${showActions ? '<th>Aksi</th>' : ''}
           </tr>
         </thead>
         <tbody>
-          ${rows.map(r => `
-            <tr>
-              ${cols.map(c => `
-                <td>
-                  ${c[0] === 'nama_pasien' || c[0] === 'nama_dokter' ? `
-                    <div class="person-cell">
-                      <div class="mini-avatar">${shortName(r[c[0]])}</div>
-                      ${cell(type, r, c[0])}
-                    </div>
-                  ` : cell(type, r, c[0])}
-                </td>
-              `).join('')}
-              ${!compact ? `
-                <td>
-                  <div class="actions">
-                    <button class="small-action" title="Edit" onclick="openModal(${r.id})">✎</button>
-                    ${currentUser.role === 'admin' ? `<button class="small-action" title="Hapus" onclick="removeRow(${r.id})">⌫</button>` : ''}
-                  </div>
-                </td>
-              ` : ''}
-            </tr>
-          `).join('') || `<tr><td colspan="${cols.length + 1}"><div class="empty">Data belum tersedia.</div></td></tr>`}
+          ${body || `<tr><td colspan="${columnCount}"><div class="empty">Belum ada data yang bisa ditampilkan.</div></td></tr>`}
         </tbody>
       </table>
     </div>
   `;
 }
 
-function listPage(type) {
-  const m = meta[type];
-  let rows = db[type].filter(r => Object.values(r).join(' ').toLowerCase().includes(query.toLowerCase()));
-  
-  if (currentUser.role === 'dokter' && type === 'pemeriksaan') {
-    rows = rows.filter(r => r.id_dokter === currentUser.id);
-  }
+/* ============================================================
+   6. Halaman
+   ============================================================ */
+function dashboardView() {
+  const isDoctor = currentUser.role === 'dokter';
+  const greetingName = isDoctor ? currentUser.nama_dokter : 'Admin';
+  const myExams = isDoctor
+    ? db.pemeriksaan.filter((row) => row.id_dokter === currentUser.id)
+    : db.pemeriksaan;
+  const todayExams = myExams.filter((row) => row.tgl_periksa === TODAY);
+
+  const stats = [
+    { label: 'Total Pasien', value: db.pasien.length, iconName: 'patients', tone: 'blue', note: 'Pasien terdaftar' },
+    isDoctor
+      ? { label: 'Pemeriksaan Saya', value: myExams.length, iconName: 'exam', tone: 'sky', note: 'Total pasien ditangani' }
+      : { label: 'Dokter Aktif', value: db.dokter.length, iconName: 'doctor', tone: 'teal', note: 'Tenaga medis terdaftar' },
+    { label: 'Pemeriksaan', value: db.pemeriksaan.length, iconName: 'exam', tone: 'indigo', note: 'Total catatan pemeriksaan' },
+    { label: 'Jenis Obat', value: db.obat.length, iconName: 'medicine', tone: 'sky', note: 'Obat tersedia' }
+  ].map(statCard).join('');
+
+  const weekly = [
+    ['Sen', 3, 2], ['Sel', 5, 3], ['Rab', 4, 3], ['Kam', 6, 3],
+    ['Jum', 8, 5], ['Sab', 4, 2], ['Min', 3, 1]
+  ];
+
+  const appointments = todayExams.map((exam, index) => `
+    <div class="appointment">
+      <div class="datebox">
+        <b>${String(9 + index * 2).padStart(2, '0')}:00</b>
+        <span>WIB</span>
+      </div>
+      <div class="appt-info">
+        <strong>${esc(nameOf('pasien', exam.id_pasien))}</strong>
+        <span>${esc(nameOf('dokter', exam.id_dokter))}</span>
+      </div>
+      <span class="status status--${index === 0 ? 'done' : 'scheduled'}">${index === 0 ? 'Selesai' : 'Terjadwal'}</span>
+    </div>
+  `).join('');
 
   return `
-    ${pageHead(m.title, `Kelola dan pantau informasi ${m.title.toLowerCase()} rumah sakit.`, `Tambah ${m.singular}`)}
+    ${pageHeading(
+      `Selamat datang, ${esc(greetingName)} 👋`,
+      isDoctor
+        ? 'Berikut ringkasan pemeriksaan dan jadwal Anda hari ini.'
+        : 'Berikut ringkasan aktivitas rumah sakit hari ini.'
+    )}
+
+    <div class="stats">${stats}</div>
+
+    <div class="grid-main">
+      <div>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">Aktivitas Pemeriksaan</h2>
+              <p class="panel-sub">Ringkasan pemeriksaan mingguan</p>
+            </div>
+            <span class="status status--done">Minggu ini</span>
+          </div>
+
+          <div class="chart">
+            ${weekly.map(([day, baru, periksa]) => `
+              <div class="chart-col">
+                <div class="bar-stack">
+                  <div class="bar bar--soft" style="--h:${baru * 10}%"></div>
+                  <div class="bar bar--main" style="--h:${periksa * 14}%"></div>
+                </div>
+                <span class="chart-label">${day}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="legend">
+            <span><i class="legend-soft"></i>Pasien baru</span>
+            <span><i class="legend-main"></i>Pemeriksaan</span>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">Pemeriksaan Terbaru</h2>
+              <p class="panel-sub">Catatan medis yang baru ditambahkan</p>
+            </div>
+            <button type="button" class="link-btn" data-nav="pemeriksaan">
+              Lihat semua ${icon('arrow-right')}
+            </button>
+          </div>
+          ${tableMarkup('pemeriksaan', myExams.slice(0, 4), { compact: true })}
+        </section>
+      </div>
+
+      <div>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">Jadwal Hari Ini</h2>
+              <p class="panel-sub">${TODAY_LABEL}</p>
+            </div>
+            <span class="panel-badge">${icon('calendar')}</span>
+          </div>
+
+          <div class="appointment-list">
+            ${appointments || '<div class="empty">Belum ada jadwal hari ini.</div>'}
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
+function listView(type) {
+  const meta = PAGE_META[type];
+  const rows = getVisibleRows(type);
+  const canCreate = currentUser.role === 'admin' || type === 'pemeriksaan';
+
+  const action = canCreate
+    ? `<button type="button" class="primary-btn" data-action="create">${icon('plus')} Tambah ${meta.singular}</button>`
+    : '';
+
+  return `
+    ${pageHeading(meta.title, meta.description, action)}
+
     <section class="panel">
-      <div class="table-title-row">
+      <div class="panel-head">
         <div>
-          <h3>Daftar ${m.title}</h3>
-          <span>${rows.length} data tercatat</span>
+          <h2 class="panel-title">Daftar ${meta.title}</h2>
+          <p class="panel-sub">${rows.length} data tercatat</p>
         </div>
-        <button class="secondary-btn" onclick="downloadCSV('${type}')">↓ Export CSV</button>
+        <button type="button" class="secondary-btn" data-action="export" data-type="${type}">
+          ${icon('download')} Export CSV
+        </button>
       </div>
-      <div class="search-row">
-        <div class="searchbox">
-          <span>⌕</span>
-          <input id="searchInput" placeholder="Cari data..." value="${esc(query)}" oninput="setQuery(this.value)">
-        </div>
-        <button class="secondary-btn" onclick="query='';render()">↻ Reset</button>
+
+      <div class="toolbar">
+        <label class="searchbox">
+          ${icon('search')}
+          <input id="searchInput" type="search" placeholder="Cari ${meta.title.toLowerCase()}..." value="${esc(searchQuery)}" autocomplete="off">
+        </label>
+        <button type="button" class="secondary-btn" data-action="reset">
+          ${icon('reset')} Reset
+        </button>
       </div>
-      ${tableHTML(type, rows)}
+
+      ${tableMarkup(type, rows)}
     </section>
   `;
 }
 
-function render() {
-  document.getElementById('crumb').textContent = page === 'dashboard' ? 'Dashboard' : meta[page].title;
-  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
-  document.getElementById('content').innerHTML = page === 'dashboard' ? dashboard() : listPage(page);
+function getVisibleRows(type) {
+  let rows = db[type].filter((row) =>
+    Object.values(row).join(' ').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (currentUser.role === 'dokter' && type === 'pemeriksaan') {
+    rows = rows.filter((row) => row.id_dokter === currentUser.id);
+  }
+
+  return rows;
 }
 
-function go(p) {
-  page = p;
-  query = '';
-  render();
-  document.getElementById('sidebar').classList.remove('open');
+function render({ animate = false } = {}) {
+  const content = $('content');
+  const label = page === 'dashboard' ? 'Dashboard' : PAGE_META[page].title;
+
+  $('crumb').textContent = label;
+  document.querySelectorAll('#nav button').forEach((button) => {
+    button.classList.toggle('active', button.dataset.page === page);
+  });
+
+  content.classList.remove('content--enter');
+  content.innerHTML = page === 'dashboard' ? dashboardView() : listView(page);
+
+  if (animate) {
+    void content.offsetWidth;
+    content.classList.add('content--enter');
+  }
+}
+
+/* ============================================================
+   7. Navigasi & pencarian
+   ============================================================ */
+function go(nextPage) {
+  page = nextPage;
+  searchQuery = '';
+  render({ animate: true });
+  closeSidebar();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function setQuery(v) {
-  query = v;
-  let pos = document.getElementById('searchInput')?.selectionStart;
+function setQuery(value) {
+  searchQuery = value;
+  const caret = $('searchInput')?.selectionStart ?? value.length;
+
   render();
-  let el = document.getElementById('searchInput');
-  if (el) {
-    el.focus();
-    el.setSelectionRange(pos, pos);
+
+  const input = $('searchInput');
+  if (!input) return;
+  input.focus();
+  input.setSelectionRange(caret, caret);
+}
+
+function openSidebar() {
+  $('sidebar').classList.add('open');
+  $('sidebarBackdrop').classList.add('show');
+}
+
+function closeSidebar() {
+  $('sidebar').classList.remove('open');
+  $('sidebarBackdrop').classList.remove('show');
+}
+
+/* ============================================================
+   8. Sesi pengguna
+   ============================================================ */
+function startSession() {
+  const isDoctor = currentUser.role === 'dokter';
+
+  $('loginWrapper').classList.add('hidden');
+  $('appContainer').classList.remove('hidden');
+
+  $('profileName').textContent = isDoctor ? currentUser.nama_dokter : 'Administrator';
+  $('profileRole').textContent = isDoctor
+    ? `Dokter Spesialis ${currentUser.spesialis}`
+    : 'Admin Rumah Sakit';
+  $('userAvatar').textContent = isDoctor ? shortName(currentUser.nama_dokter) : 'AD';
+  $('brandSubRole').textContent = isDoctor ? 'Portal Dokter' : 'Hospital System';
+
+  document.querySelectorAll('.admin-only').forEach((element) => {
+    element.classList.toggle('hidden', isDoctor);
+  });
+
+  page = 'dashboard';
+  searchQuery = '';
+  render({ animate: true });
+  window.scrollTo({ top: 0 });
+}
+
+function logout() {
+  currentUser = null;
+  closeSidebar();
+  $('appContainer').classList.add('hidden');
+  $('loginWrapper').classList.remove('hidden');
+  $('loginWrapper').scrollTop = 0;
+  $('loginForm').reset();
+}
+
+/* ============================================================
+   9. Modal & form data
+   ============================================================ */
+function renderField({ key, label, type, options, record, isEditing }) {
+  if (currentUser.role === 'dokter' && key === 'id_dokter') {
+    return `<input type="hidden" name="${key}" value="${currentUser.id}">`;
   }
+
+  const value = record[key] ?? '';
+
+  if (type === 'select') {
+    const items = typeof options === 'function' ? options() : options.map((item) => [item, item]);
+
+    return `
+      <div class="field">
+        <label for="field-${key}">${label}</label>
+        <select id="field-${key}" name="${key}" required>
+          <option value="" disabled ${value === '' ? 'selected' : ''}>Pilih ${label.toLowerCase()}</option>
+          ${items.map(([optionValue, optionLabel]) => `
+            <option value="${esc(optionValue)}" ${String(value) === String(optionValue) ? 'selected' : ''}>
+              ${esc(optionLabel)}
+            </option>
+          `).join('')}
+        </select>
+      </div>
+    `;
+  }
+
+  const isPassword = type === 'password';
+  const required = !isPassword || !isEditing;
+
+  return `
+    <div class="field">
+      <label for="field-${key}">${label}</label>
+      <input id="field-${key}" name="${key}" type="${type}" value="${esc(value)}"
+        placeholder="Masukkan ${label.toLowerCase()}" ${required ? 'required' : ''}>
+    </div>
+  `;
 }
 
 function openModal(id = null) {
-  editing = id;
-  const m = meta[page];
-  if (!m) return;
-  
-  const current = id ? db[page].find(r => r.id === id) : {};
-  document.getElementById('modalTitle').textContent = (id ? 'Edit ' : 'Tambah ') + m.singular;
-  
-  document.getElementById('formFields').innerHTML = m.fields.map(([key, label, type, opts]) => {
-    let val = current[key] ?? '';
-    
-    if (currentUser.role === 'dokter' && key === 'id_dokter') {
-      val = currentUser.id;
-      return `<input type="hidden" name="${key}" value="${val}">`;
-    }
+  const meta = PAGE_META[page];
+  if (!meta) return;
 
-    if (type === 'select') {
-      let options = typeof opts === 'function' ? opts() : opts.map(v => [v, v]);
-      return `
-        <div class="field">
-          <label>${label}</label>
-          <select name="${key}" required>
-            <option value="">Pilih ${label}</option>
-            ${options.map(o => `<option value="${esc(o[0])}" ${String(val) === String(o[0]) ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}
-          </select>
-        </div>
-      `;
-    }
-    return `
-      <div class="field ${type === 'textarea' ? 'full' : ''}">
-        <label>${label}</label>
-        <input name="${key}" type="${type}" value="${esc(val)}" ${key === 'password' && !id ? 'required' : ''} ${key !== 'password' ? 'required' : ''} placeholder="Masukkan ${label.toLowerCase()}">
-      </div>
-    `;
-  }).join('');
-  
-  document.getElementById('modalBackdrop').classList.add('show');
+  const record = id ? db[page].find((row) => row.id === id) : {};
+
+  editingId = id;
+  $('modalTitle').textContent = `${id ? 'Edit' : 'Tambah'} ${meta.singular}`;
+  $('formFields').innerHTML = meta.fields
+    .map(([key, label, type, options]) => renderField({
+      key,
+      label,
+      type,
+      options,
+      record,
+      isEditing: Boolean(id)
+    }))
+    .join('');
+
+  $('modalBackdrop').classList.add('show');
 }
 
 function closeModal() {
-  document.getElementById('modalBackdrop').classList.remove('show');
+  $('modalBackdrop').classList.remove('show');
+  $('dataForm').reset();
+  editingId = null;
 }
 
-function notify(msg) {
-  let t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
-}
+function saveRow(formData) {
+  const meta = PAGE_META[page];
+  const payload = {};
 
-document.getElementById('dataForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const m = meta[page], fd = new FormData(e.target), obj = {};
-  
-  m.fields.forEach(([key, label, type]) => {
-    let val = fd.get(key);
-    if (currentUser.role === 'dokter' && key === 'id_dokter') val = currentUser.id;
-    if (['id_pasien', 'id_dokter', 'id_pemeriksaan', 'id_obat'].includes(key)) val = Number(val);
-    if (val !== null) obj[key] = val;
+  meta.fields.forEach(([key]) => {
+    let value = formData.get(key);
+
+    if (currentUser.role === 'dokter' && key === 'id_dokter') {
+      value = currentUser.id;
+    }
+    if (REFERENCE_KEYS.has(key)) {
+      value = Number(value);
+    }
+    if (value !== null) {
+      payload[key] = value;
+    }
   });
-  
-  if (editing) {
-    let idx = db[page].findIndex(r => r.id === editing);
-    db[page][idx] = { ...db[page][idx], ...obj };
-    notify('Data berhasil diperbarui.');
-  } else {
-    obj.id = Math.max(0, ...db[page].map(r => Number(r.id) || 0)) + 1;
-    db[page].push(obj);
-    notify('Data berhasil ditambahkan.');
+
+  if (editingId !== null) {
+    const index = db[page].findIndex((row) => row.id === editingId);
+    db[page][index] = { ...db[page][index], ...payload };
+    closeModal();
+    render();
+    showToast('Data berhasil diperbarui.');
+    return;
   }
-  
+
+  const nextId = Math.max(0, ...db[page].map((row) => Number(row.id) || 0)) + 1;
+  db[page].push({ id: nextId, ...payload });
   closeModal();
   render();
-});
+  showToast('Data berhasil ditambahkan.');
+}
 
 function removeRow(id) {
-  if (confirm('Yakin ingin menghapus data ini?')) {
-    db[page] = db[page].filter(r => r.id !== id);
-    render();
-    notify('Data berhasil dihapus.');
-  }
+  if (!confirm('Yakin ingin menghapus data ini?')) return;
+
+  db[page] = db[page].filter((row) => row.id !== id);
+  render();
+  showToast('Data berhasil dihapus.');
 }
 
 function downloadCSV(type) {
-  const rows = db[type], keys = Object.keys(rows[0] || {});
-  let csv = [keys.join(','), ...rows.map(r => keys.map(k => '"' + String(r[k] ?? '').replace(/"/g, '""') + '"').join(','))].join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' }));
-  a.download = type + '.csv';
-  a.click();
-  URL.revokeObjectURL(a.href);
+  const rows = getVisibleRows(type);
+  if (!rows.length) {
+    showToast('Tidak ada data untuk diekspor.');
+    return;
+  }
+
+  const keys = Object.keys(rows[0]);
+  const lines = [
+    keys.join(','),
+    ...rows.map((row) => keys
+      .map((key) => `"${String(row[key] ?? '').replace(/"/g, '""')}"`)
+      .join(','))
+  ];
+
+  const url = URL.createObjectURL(new Blob(['\ufeff' + lines.join('\n')], {
+    type: 'text/csv;charset=utf-8;'
+  }));
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${type}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+
+  showToast('Data berhasil diekspor.');
 }
 
-document.querySelectorAll('#nav button').forEach(b => b.addEventListener('click', () => go(b.dataset.page)));
-document.getElementById('closeModal').onclick = closeModal;
-document.getElementById('cancelModal').onclick = closeModal;
-document.getElementById('modalBackdrop').addEventListener('click', e => {
-  if (e.target.id === 'modalBackdrop') closeModal();
+/* ============================================================
+   10. Event listener
+   ============================================================ */
+$('loginForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  const username = $('loginUsername').value.trim();
+  const password = $('loginPassword').value.trim();
+  const doctor = db.dokter.find((row) => row.username === username && row.password === password);
+
+  if (!doctor) {
+    showToast('Username atau password salah. Coba dr.rahman / 123.');
+    return;
+  }
+
+  currentUser = { role: 'dokter', ...doctor };
+  startSession();
+  showToast(`Selamat datang, ${doctor.nama_dokter}.`);
 });
-document.getElementById('menuToggle').onclick = () => document.getElementById('sidebar').classList.toggle('open');
+
+$('demoLogin').addEventListener('click', () => {
+  currentUser = { role: 'admin', username: 'admin', nama_dokter: 'Administrator' };
+  startSession();
+  showToast('Masuk sebagai Administrator.');
+});
+
+$('logoutBtn').addEventListener('click', logout);
+$('menuToggle').addEventListener('click', openSidebar);
+$('sidebarBackdrop').addEventListener('click', closeSidebar);
+
+$('nav').addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-page]');
+  if (button) go(button.dataset.page);
+});
+
+$('content').addEventListener('click', (event) => {
+  const navTarget = event.target.closest('[data-nav]');
+  if (navTarget) {
+    go(navTarget.dataset.nav);
+    return;
+  }
+
+  const actionTarget = event.target.closest('[data-action]');
+  if (!actionTarget) return;
+
+  const { action, id, type } = actionTarget.dataset;
+
+  if (action === 'create') openModal();
+  if (action === 'edit') openModal(Number(id));
+  if (action === 'delete') removeRow(Number(id));
+  if (action === 'export') downloadCSV(type);
+  if (action === 'reset') {
+    searchQuery = '';
+    render();
+  }
+});
+
+$('content').addEventListener('input', (event) => {
+  if (event.target.id === 'searchInput') setQuery(event.target.value);
+});
+
+$('dataForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+  saveRow(new FormData(event.target));
+});
+
+$('closeModal').addEventListener('click', closeModal);
+$('cancelModal').addEventListener('click', closeModal);
+
+$('modalBackdrop').addEventListener('click', (event) => {
+  if (event.target === event.currentTarget) closeModal();
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  closeModal();
+  closeSidebar();
+});
