@@ -3,103 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a2342">
   <title>MediCare — Sistem Informasi Rumah Sakit</title>
-  
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- CSS Utama -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- HALAMAN LOGIN DOKTER / ADMIN -->
-  <div class="login-wrapper" id="loginWrapper">
+
+  <!-- Kumpulan ikon (SVG sprite) -->
+  <svg class="icon-sprite" aria-hidden="true" focusable="false">
+    <symbol id="ico-cross" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="ico-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+    <symbol id="ico-patients" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="ico-doctor" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21v-1a7 7 0 0 1 12.5-4.6"/><path d="m16 19 2 2 4-4"/></symbol>
+    <symbol id="ico-exam" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1.5"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M8 11h8M8 16h5"/></symbol>
+    <symbol id="ico-medicine" viewBox="0 0 24 24"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></symbol>
+    <symbol id="ico-prescription" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12h4M10 16h4"/></symbol>
+    <symbol id="ico-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+    <symbol id="ico-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+    <symbol id="ico-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="ico-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="ico-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="ico-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+    <symbol id="ico-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="ico-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+    <symbol id="ico-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="ico-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="ico-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="ico-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="ico-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  </svg>
+
+  <!-- Layar masuk -->
+  <div class="login-screen" id="loginWrapper">
+    <span class="glow glow--one"></span>
+    <span class="glow glow--two"></span>
+    <span class="glow glow--three"></span>
+
     <div class="login-card">
-      <div class="brand" style="justify-content: center; margin-bottom: 20px;">
-        <div class="brand-icon">✚</div>
+      <div class="login-brand">
+        <span class="brand-mark"><svg class="icon"><use href="#ico-cross"/></svg></span>
         <div>
-          <div class="brand-name">MediCare</div>
-          <div class="brand-sub">PORTAL RUMAH SAKIT</div>
+          <div class="brand-name">RumahSehat</div>
+          <div class="brand-sub">Portal Rumah Sakit</div>
         </div>
       </div>
-      <h2>Silakan Masuk</h2>
-      <p style="font-size: 12px; color: var(--muted); margin-bottom: 20px; text-align: center;">Masuk menggunakan akun dokter atau akses administrator.</p>
-      
-      <form id="loginForm">
-        <div class="field" style="margin-bottom: 15px;">
-          <label>Username</label>
-          <input type="text" id="loginUsername" placeholder="Contoh: dr.rahman" required>
-        </div>
-        <div class="field" style="margin-bottom: 20px;">
-          <label>Password</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="primary-btn" style="width: 100%; justify-content: center;">Masuk ke Portal <span>→</span></button>
+
+      <h1>Selamat datang kembali</h1>
+      <p class="login-desc">Masuk untuk mengelola pasien, jadwal dokter, dan resep dalam satu portal yang tenang.</p>
+
+      <form id="loginForm" class="login-form">
+        <label class="field">
+          <span class="field-label">Username</span>
+          <input type="text" id="loginUsername" placeholder="Contoh: dr.rahman" autocomplete="username" required>
+        </label>
+        <label class="field">
+          <span class="field-label">Password</span>
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="primary-btn primary-btn--block">
+          Masuk ke Portal
+          <svg class="icon"><use href="#ico-arrow-right"/></svg>
+        </button>
       </form>
-      <div style="text-align: center; margin-top: 15px;">
-        <button type="button" class="link-btn" onclick="bypassAdmin()">Masuk sebagai Administrator (Demo)</button>
-      </div>
+
+      <div class="login-divider"><span>atau</span></div>
+
+      <button type="button" class="ghost-btn" id="demoLogin">Masuk sebagai Administrator (Demo)</button>
+      <p class="login-hint">Akun demo dokter · <b>dr.rahman</b> / <b>123</b></p>
     </div>
   </div>
 
-  <!-- APLIKASI UTAMA (SETELAH LOGIN) -->
+  <!-- Aplikasi utama -->
   <div class="app hidden" id="appContainer">
-    <!-- Sidebar / Navigasi Samping -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
     <aside class="sidebar" id="sidebar">
       <div class="brand">
-        <div class="brand-icon">✚</div>
+        <span class="brand-mark"><svg class="icon"><use href="#ico-cross"/></svg></span>
         <div>
           <div class="brand-name">MediCare</div>
-          <div class="brand-sub" id="brandSubRole">HOSPITAL SYSTEM</div>
+          <div class="brand-sub" id="brandSubRole">Hospital System</div>
         </div>
       </div>
-      
-      <div class="nav-label">MENU UTAMA</div>
+
+      <div class="nav-label">Menu Utama</div>
       <nav class="nav" id="nav">
-        <button class="active" data-page="dashboard"><span class="nav-ico">▦</span>Dashboard</button>
-        <button data-page="pasien" class="admin-only"><span class="nav-ico">♙</span>Data Pasien</button>
-        <button data-page="dokter" class="admin-only"><span class="nav-ico">⚕</span>Data Dokter</button>
-        <button data-page="pemeriksaan"><span class="nav-ico">▤</span>Pemeriksaan</button>
-        <button data-page="obat" class="admin-only"><span class="nav-ico">✚</span>Data Obat</button>
-        <button data-page="resep"><span class="nav-ico">▧</span>Resep Obat</button>
+        <button type="button" class="active" data-page="dashboard">
+          <svg class="icon"><use href="#ico-dashboard"/></svg><span>Dashboard</span>
+        </button>
+        <button type="button" data-page="pasien" class="admin-only">
+          <svg class="icon"><use href="#ico-patients"/></svg><span>Data Pasien</span>
+        </button>
+        <button type="button" data-page="dokter" class="admin-only">
+          <svg class="icon"><use href="#ico-doctor"/></svg><span>Data Dokter</span>
+        </button>
+        <button type="button" data-page="pemeriksaan">
+          <svg class="icon"><use href="#ico-exam"/></svg><span>Pemeriksaan</span>
+        </button>
+        <button type="button" data-page="obat" class="admin-only">
+          <svg class="icon"><use href="#ico-medicine"/></svg><span>Data Obat</span>
+        </button>
+        <button type="button" data-page="resep">
+          <svg class="icon"><use href="#ico-prescription"/></svg><span>Resep Obat</span>
+        </button>
       </nav>
 
-      <div class="side-bottom">
-        <button class="secondary-btn" style="width: 100%; background: #ffffff12; color: #fff; border: 0;" onclick="logout()">Keluar (Logout)</button>
+      <div class="side-foot">
+        <div class="side-card">
+          <span class="side-card-icon"><svg class="icon"><use href="#ico-shield"/></svg></span>
+          <strong>Akses aman</strong>
+          <p>Data pasien terlindungi dan hanya diakses oleh staf berwenang.</p>
+        </div>
+        <button type="button" class="logout-btn" id="logoutBtn">
+          <svg class="icon"><use href="#ico-logout"/></svg><span>Keluar (Logout)</span>
+        </button>
       </div>
     </aside>
 
-    <!-- Area Utama / Main Content -->
     <main class="main">
       <header class="topbar">
-        <div style="display:flex; align-items:center">
-          <button class="icon-btn menu-toggle" id="menuToggle">☰</button>
-          <div class="crumb">MediCare <span style="margin:0 8px; color:#c3cbd4">/</span> <b id="crumb">Dashboard</b></div>
+        <div class="topbar-left">
+          <button type="button" class="icon-btn menu-toggle" id="menuToggle" aria-label="Buka menu">
+            <svg class="icon"><use href="#ico-menu"/></svg>
+          </button>
+          <div class="crumb">MediCare <span>/</span> <b id="crumb">Dashboard</b></div>
         </div>
-        <div class="top-right">
-          <button class="icon-btn" title="Notifikasi">♧<i class="dot"></i></button>
+
+        <div class="topbar-right">
+          <button type="button" class="icon-btn" aria-label="Notifikasi">
+            <svg class="icon"><use href="#ico-bell"/></svg>
+            <i class="dot"></i>
+          </button>
           <div class="profile">
             <div class="avatar" id="userAvatar">AD</div>
-            <div>
+            <div class="profile-copy">
               <div class="profile-name" id="profileName">Administrator</div>
               <div class="profile-role" id="profileRole">Admin Rumah Sakit</div>
             </div>
           </div>
         </div>
       </header>
-      
+
       <div class="content" id="content"></div>
     </main>
   </div>
 
-  <!-- Modal Form Tambah/Edit Data -->
+  <!-- Modal tambah / edit data -->
   <div class="modal-backdrop" id="modalBackdrop">
-    <section class="modal">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-head">
         <h2 id="modalTitle">Tambah Data</h2>
-        <button class="close-btn" id="closeModal">×</button>
+        <button type="button" class="close-btn" id="closeModal" aria-label="Tutup">
+          <svg class="icon"><use href="#ico-close"/></svg>
+        </button>
       </div>
       <form id="dataForm">
         <div class="modal-body">
@@ -107,16 +166,18 @@
         </div>
         <div class="modal-foot">
           <button type="button" class="secondary-btn" id="cancelModal">Batal</button>
-          <button type="submit" class="primary-btn">Simpan Data <span>→</span></button>
+          <button type="submit" class="primary-btn">
+            Simpan Data
+            <svg class="icon"><use href="#ico-arrow-right"/></svg>
+          </button>
         </div>
       </form>
     </section>
   </div>
 
-  <!-- Toast Notifikasi -->
-  <div class="toast" id="toast">Data berhasil disimpan</div>
+  <!-- Notifikasi -->
+  <div class="toast" id="toast" role="status" aria-live="polite">Data berhasil disimpan</div>
 
-  <!-- Script JS -->
   <script src="script.js"></script>
 </body>
 </html>
