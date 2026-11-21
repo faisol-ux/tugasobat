@@ -88,44 +88,6 @@ $current = basename($_SERVER['PHP_SELF']);
                 </li>
             </ul>
         </div>
-
-        <!-- Skema Database -->
-        <div>
-            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-300 px-3 mb-2">Referensi</div>
-            <ul class="space-y-1">
-                <li>
-                    <a href="erd.php" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-medium <?= ($current == 'erd.php') ? 'bg-teal-500 text-slate-950 font-bold shadow-lg shadow-teal-500/25' : 'text-slate-300 hover:bg-slate-800 hover:text-white' ?>">
-                        <i class="fa-solid fa-diagram-project w-5 text-center text-base"></i>
-                        <span>Diagram ERD Database</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Aplikasi Terintegrasi -->
-        <div>
-            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-300 px-3 mb-2">Aplikasi Terintegrasi</div>
-            <ul class="space-y-1">
-                <li>
-                    <a href="/tugasobat-main/rumah_sakit_crud/" target="_blank" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition-all text-slate-300 hover:bg-slate-800 hover:text-teal-300 font-medium">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-user-doctor w-5 text-center text-base text-emerald-400"></i>
-                            <span>CRUD Dokter</span>
-                        </div>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
-                    </a>
-                </li>
-                <li>
-                    <a href="/tugasobat-main/rumah_sakit_crud/resep_obat/" target="_blank" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition-all text-slate-300 hover:bg-slate-800 hover:text-amber-300 font-medium">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-prescription-bottle-medical w-5 text-center text-base text-amber-400"></i>
-                            <span>CRUD Resep Obat</span>
-                        </div>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
-                    </a>
-                </li>
-            </ul>
-        </div>
         <?php endif; ?>
 
     </nav>

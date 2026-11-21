@@ -89,21 +89,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
             <!-- Profile & Info -->
             <div class="flex items-center gap-3">
-                <?php if (!is_pasien()): ?>
-                <div class="hidden lg:flex items-center gap-2">
-                    <a href="/tugasobat-main/rumah_sakit_crud/" target="_blank" 
-                       class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-[11px] text-slate-300 hover:text-emerald-300 border border-slate-700 flex items-center gap-1.5 transition-all" title="Buka CRUD Dokter">
-                        <i class="fa-solid fa-user-doctor text-emerald-400"></i>
-                        <span>CRUD Dokter</span>
-                    </a>
-                    <a href="/tugasobat-main/rumah_sakit_crud/resep_obat/" target="_blank" 
-                       class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-[11px] text-slate-300 hover:text-amber-300 border border-slate-700 flex items-center gap-1.5 transition-all" title="Buka CRUD Resep">
-                        <i class="fa-solid fa-prescription-bottle-medical text-amber-400"></i>
-                        <span>CRUD Resep</span>
-                    </a>
-                </div>
-                <?php endif; ?>
-
                 <!-- User Badge -->
                 <div class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80">
                     <?php
