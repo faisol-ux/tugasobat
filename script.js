@@ -704,6 +704,12 @@ $('logoutBtn').addEventListener('click', logout);
 $('menuToggle').addEventListener('click', openSidebar);
 $('sidebarBackdrop').addEventListener('click', closeSidebar);
 
+$('sidebarToggle').addEventListener('click', () => {
+  const collapsed = $('appContainer').classList.toggle('side-collapsed');
+  $('sidebarToggle').setAttribute('aria-expanded', String(!collapsed));
+  $('sidebarToggle').setAttribute('aria-label', collapsed ? 'Lebarkan menu' : 'Ringkas menu');
+});
+
 $('nav').addEventListener('click', (event) => {
   const button = event.target.closest('button[data-page]');
   if (button) go(button.dataset.page);
