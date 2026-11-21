@@ -12,14 +12,15 @@ if ($aksi == 'tambah') {
     $jenis       = $_POST['jenis'];
     $spesialis   = $_POST['spesialis'];
 
-    $sql = "INSERT INTO dokter (username, password, nama_dokter, alamat, tgl_lahir, Jenis, Spesialis) 
+    $sql = "INSERT INTO dokter (username, password, nama_dokter, alamat, tgl_lahir, jenis, spesialis) 
             VALUES ('$username', '$password', '$nama_dokter', '$alamat', '$tgl_lahir', '$jenis', '$spesialis')";
     mysqli_query($koneksi, $sql);
     header("Location: index.php");
+    exit;
 
 // UNTUK UPDATE DATA (EDIT)
 } elseif ($aksi == 'update') {
-    $id_dokter   = $_POST['id_dokter'];
+    $id_dokter   = $_POST['id_dokter'] ?? $_POST['id'] ?? '';
     $username    = $_POST['username'];
     $password    = $_POST['password'];
     $nama_dokter = $_POST['nama_dokter'];
@@ -34,11 +35,21 @@ if ($aksi == 'tambah') {
             nama_dokter='$nama_dokter', 
             alamat='$alamat', 
             tgl_lahir='$tgl_lahir', 
-            Jenis='$jenis', 
-            Spesialis='$spesialis' 
-            WHERE id_dokter='$id_dokter'";
+            jenis='$jenis', 
+            spesialis='$spesialis' 
+            WHERE id='$id_dokter' OR id_dokter='$id_dokter'";
             
     mysqli_query($koneksi, $sql);
     header("Location: index.php");
+    exit;
+
+// UNTUK HAPUS DATA
+} elseif ($aksi == 'hapus') {
+    if (isset($_GET['id'])) {
+        $id_dokter = $_GET['id'];
+        mysqli_query($koneksi, "DELETE FROM dokter WHERE id='$id_dokter' OR id_dokter='$id_dokter'");
+    }
+    header("Location: index.php");
+    exit;
 }
 ?>

@@ -8,7 +8,7 @@ if (!isset($_GET['id'])) {
 }
 
 $id = $_GET['id'];
-$query = mysqli_query($koneksi, "SELECT * FROM dokter WHERE id_dokter='$id'");
+$query = mysqli_query($koneksi, "SELECT *, id AS id_dokter FROM dokter WHERE id='$id' OR id_dokter='$id'");
 $data = mysqli_fetch_array($query);
 
 // Jika data tidak ditemukan
@@ -88,37 +88,34 @@ if (!$data) {
                     
                     <div class="form-group">
                         <label>Username</label>
-                        <input type="text" name="username" class="form-control" value="<?php echo $data['username']; ?>" required>
+                        <input type="text" name="username" class="form-control" value="<?php echo htmlspecialchars($data['username']); ?>" required>
                     </div>
                     
                     <div class="form-group">
-    <label>Password</label>
-    <div style="position: relative; display: flex; align-items: center;">
-        <!-- 1. type diubah jadi password, ditambah id="pass_edit", dan padding-right -->
-        <input type="password" id="pass_edit" name="password" class="form-control" value="<?php echo $data['password']; ?>" required style="padding-right: 50px;">
-        
-        <!-- 2. Ikon mata ditambahkan di sini -->
-        <i class="fas fa-eye" id="toggle_icon_edit" onclick="togglePasswordEdit()" style="
-            position: absolute; 
-            right: 15px; 
-            cursor: pointer; 
-            color: var(--text-muted); 
-            font-size: 18px;
-            padding: 10px; 
-            z-index: 10; 
-            transition: 0.3s;
-        "></i>
-    </div>
-</div>
+                        <label>Password</label>
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <input type="password" id="pass_edit" name="password" class="form-control" value="<?php echo htmlspecialchars($data['password']); ?>" required style="padding-right: 50px;">
+                            <i class="fas fa-eye" id="toggle_icon_edit" onclick="togglePasswordEdit()" style="
+                                position: absolute; 
+                                right: 15px; 
+                                cursor: pointer; 
+                                color: var(--text-muted); 
+                                font-size: 18px;
+                                padding: 10px; 
+                                z-index: 10; 
+                                transition: 0.3s;
+                            "></i>
+                        </div>
+                    </div>
                     
                     <div class="form-group">
                         <label>Nama Lengkap Dokter</label>
-                        <input type="text" name="nama_dokter" class="form-control" value="<?php echo $data['nama_dokter']; ?>" required>
+                        <input type="text" name="nama_dokter" class="form-control" value="<?php echo htmlspecialchars($data['nama_dokter']); ?>" required>
                     </div>
                     
                     <div class="form-group">
                         <label>Alamat</label>
-                        <input type="text" name="alamat" class="form-control" value="<?php echo $data['alamat']; ?>" required>
+                        <input type="text" name="alamat" class="form-control" value="<?php echo htmlspecialchars($data['alamat']); ?>" required>
                     </div>
                     
                     <div class="form-group">
@@ -131,15 +128,15 @@ if (!$data) {
                         <label>Jenis Kelamin</label>
                         <div class="select-wrapper">
                             <select name="jenis" class="form-control" required>
-                                <option value="Laki-laki" <?php if($data['Jenis'] == 'Laki-laki') echo 'selected'; ?>>Laki-laki</option>
-                                <option value="Perempuan" <?php if($data['Jenis'] == 'Perempuan') echo 'selected'; ?>>Perempuan</option>
+                                <option value="Laki-laki" <?php if($data['jenis'] == 'Laki-laki') echo 'selected'; ?>>Laki-laki</option>
+                                <option value="Perempuan" <?php if($data['jenis'] == 'Perempuan') echo 'selected'; ?>>Perempuan</option>
                             </select>
                         </div>
                     </div>
                     
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label>Spesialis</label>
-                        <input type="text" name="spesialis" class="form-control" value="<?php echo $data['Spesialis']; ?>" required>
+                        <input type="text" name="spesialis" class="form-control" value="<?php echo htmlspecialchars($data['spesialis']); ?>" required>
                     </div>
                     
                     <div class="form-action">
@@ -172,7 +169,6 @@ if (!$data) {
             }
         }
     </script>
-
 
 </body>
 </html>

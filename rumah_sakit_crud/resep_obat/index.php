@@ -1,5 +1,9 @@
 <?php
-include '../koneksi.php'; // Sesuaikan path jika file koneksi ada di luar folder
+if (file_exists('koneksi.php')) {
+    include 'koneksi.php';
+} else {
+    include '../koneksi.php';
+}
 
 // Proses Hapus Data
 if(isset($_GET['hapus'])){
@@ -11,23 +15,28 @@ if(isset($_GET['hapus'])){
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Resep Obat - Rumah Sakit</title>
-    
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         /* === PALET WARNA BERDASARKAN LOGO === */
         :root {
-            --bg-paper: #f4f1ea;      /* Warna krem seperti kertas */
-            --maroon: #8b1c24;        /* Merah Marun Logo */
-            --maroon-hover: #6a131a;  /* Marun Gelap untuk Hover */
-            --navy: #1e3a5f;          /* Biru Dongker Logo */
+            --bg-paper: #f4f1ea;
+            /* Warna krem seperti kertas */
+            --maroon: #8b1c24;
+            /* Merah Marun Logo */
+            --maroon-hover: #6a131a;
+            /* Marun Gelap untuk Hover */
+            --navy: #1e3a5f;
+            /* Biru Dongker Logo */
             --white: #ffffff;
             --text-dark: #2d3748;
             --text-gray: #718096;
@@ -86,10 +95,11 @@ if(isset($_GET['hapus'])){
         .card {
             background: var(--white);
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05), 0 2px 5px rgba(0,0,0,0.03);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 2px 5px rgba(0, 0, 0, 0.03);
             padding: 30px;
             margin-bottom: 35px;
-            border-top: 5px solid var(--navy); /* Aksen garis biru di atas */
+            border-top: 5px solid var(--navy);
+            /* Aksen garis biru di atas */
         }
 
         .card-title {
@@ -181,9 +191,11 @@ if(isset($_GET['hapus'])){
             background: var(--white);
         }
 
-        th, td {
+        th,
+        td {
             padding: 16px;
-            text-align: center; /* Teks di tengah agar rapi */
+            text-align: center;
+            /* Teks di tengah agar rapi */
             font-size: 14px;
         }
 
@@ -223,7 +235,8 @@ if(isset($_GET['hapus'])){
             gap: 10px;
         }
 
-        .btn-edit, .btn-hapus {
+        .btn-edit,
+        .btn-hapus {
             text-decoration: none;
             padding: 6px 12px;
             border-radius: 6px;
@@ -237,29 +250,75 @@ if(isset($_GET['hapus'])){
 
         .btn-edit {
             background-color: #fffaf0;
-            color: #dd6b20; /* Warna oranye keemasan */
+            color: #dd6b20;
+            /* Warna oranye keemasan */
             border: 1px solid #fbd38d;
         }
-        .btn-edit:hover { background-color: #feebc8; }
+
+        .btn-edit:hover {
+            background-color: #feebc8;
+        }
 
         .btn-hapus {
             background-color: #fff5f5;
-            color: #e53e3e; /* Warna merah */
+            color: #e53e3e;
+            /* Warna merah */
             border: 1px solid #feb2b2;
         }
-        .btn-hapus:hover { background-color: #fed7d7; }
+
+        .btn-hapus:hover {
+            background-color: #fed7d7;
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .form-grid { grid-template-columns: 1fr; }
-            th, td { padding: 12px; }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            th,
+            td {
+                padding: 12px;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
-        
+
+        <!-- INTEGRATED NAVIGATION BAR (ANTAR WEB) -->
+        <nav class="connected-nav" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:25px; background:var(--white); padding:12px 20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); border-top:4px solid var(--maroon);">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></span>
+                <span style="font-size:12px; font-weight:700; color:var(--text-gray); text-transform:uppercase; letter-spacing:0.5px;">DB: rumah sakit</span>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                <a href="/tugas_obat/" style="text-decoration:none; padding:7px 12px; border-radius:6px; font-size:12px; font-weight:600; background:var(--bg-paper); color:var(--navy); border:1px solid var(--border); display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fas fa-chart-pie"></i> SIM Dashboard
+                </a>
+                <a href="../index.php" style="text-decoration:none; padding:7px 12px; border-radius:6px; font-size:12px; font-weight:600; background:var(--bg-paper); color:var(--navy); border:1px solid var(--border); display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fas fa-user-md"></i> Dokter (CRUD)
+                </a>
+                <a href="/tugas_obat/pasien.php" style="text-decoration:none; padding:7px 12px; border-radius:6px; font-size:12px; font-weight:600; background:var(--bg-paper); color:var(--navy); border:1px solid var(--border); display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fas fa-hospital-user"></i> Pasien
+                </a>
+                <a href="/tugas_obat/obat.php" style="text-decoration:none; padding:7px 12px; border-radius:6px; font-size:12px; font-weight:600; background:var(--bg-paper); color:var(--navy); border:1px solid var(--border); display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fas fa-pills"></i> Obat
+                </a>
+                <a href="/tugas_obat/pemeriksaan.php" style="text-decoration:none; padding:7px 12px; border-radius:6px; font-size:12px; font-weight:600; background:var(--bg-paper); color:var(--navy); border:1px solid var(--border); display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fas fa-stethoscope"></i> Pemeriksaan
+                </a>
+                <a href="index.php" style="text-decoration:none; padding:7px 12px; border-radius:6px; font-size:12px; font-weight:700; background:var(--maroon); color:var(--white); display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fas fa-prescription-bottle-medical"></i> Resep Obat (CRUD)
+                </a>
+                <a href="/tugas_obat/erd.php" style="text-decoration:none; padding:7px 12px; border-radius:6px; font-size:12px; font-weight:600; background:var(--bg-paper); color:var(--text-gray); border:1px solid var(--border); display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fas fa-project-diagram"></i> ERD
+                </a>
+            </div>
+        </nav>
+
         <!-- HEADER -->
         <div class="page-header">
             <i class="fas fa-prescription-bottle-medical"></i>
@@ -273,17 +332,19 @@ if(isset($_GET['hapus'])){
             </div>
             <form action="proses.php?aksi=tambah" method="POST">
                 <div class="form-grid">
-                    
+
                     <div class="form-group">
                         <label>ID Pemeriksaan</label>
-                        <input type="number" name="id_periksa" class="form-control" placeholder="Masukkan ID Pemeriksaan..." required>
+                        <input type="number" name="id_periksa" class="form-control"
+                            placeholder="Masukkan ID Pemeriksaan..." required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>ID Obat</label>
-                        <input type="number" name="id_obat" class="form-control" placeholder="Masukkan ID Obat..." required>
+                        <input type="number" name="id_obat" class="form-control" placeholder="Masukkan ID Obat..."
+                            required>
                     </div>
-                    
+
                     <div class="form-action">
                         <button type="submit">
                             <i class="fas fa-save"></i> Simpan Resep
@@ -322,15 +383,22 @@ if(isset($_GET['hapus'])){
                         while ($data = mysqli_fetch_array($query)) {
                         ?>
                         <tr>
-                            <td class="td-id">#<?php echo $data['id_resep_obat']; ?></td>
-                            <td><?php echo $data['id_periksa']; ?></td>
-                            <td><?php echo $data['id_obat']; ?></td>
+                            <td class="td-id">#
+                                <?php echo $data['id_resep_obat']; ?>
+                            </td>
+                            <td>
+                                <?php echo $data['id_periksa']; ?>
+                            </td>
+                            <td>
+                                <?php echo $data['id_obat']; ?>
+                            </td>
                             <td>
                                 <div class="action-btns">
                                     <a href="edit.php?id=<?php echo $data['id_resep_obat']; ?>" class="btn-edit">
                                         <i class="fas fa-edit"></i> Edit
                                     </a>
-                                    <a href="index.php?hapus=<?php echo $data['id_resep_obat']; ?>" class="btn-hapus" onclick="return confirm('Yakin ingin menghapus resep ini?')">
+                                    <a href="index.php?hapus=<?php echo $data['id_resep_obat']; ?>" class="btn-hapus"
+                                        onclick="return confirm('Yakin ingin menghapus resep ini?')">
                                         <i class="fas fa-trash-alt"></i> Hapus
                                     </a>
                                 </div>
@@ -341,8 +409,9 @@ if(isset($_GET['hapus'])){
                 </table>
             </div>
         </div>
-        
+
     </div>
 
 </body>
+
 </html>
