@@ -54,6 +54,7 @@ CREATE TABLE `obat` (
   `id` int(5) NOT NULL AUTO_INCREMENT,
   `kode_obat` varchar(255) NOT NULL,
   `nama_obat` varchar(255) NOT NULL,
+  `frekuensi_peresepan` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `kode_obat` (`kode_obat`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -137,15 +138,15 @@ INSERT INTO `pasien` (`id`, `no_registrasi`, `nama_pasien`, `alamat`, `tgl_lahir
 (5, 'REG-2026-005', 'Bambang Sutrisno', 'Jl. Darmo Permai No. 102, Surabaya', '1975-07-30', 'Pusing bagian tengkuk leher dan badan kaku', '150/95 mmHg');
 
 -- Data Obat
-INSERT INTO `obat` (`id`, `kode_obat`, `nama_obat`) VALUES
-(1, 'OBT-001', 'Paracetamol 500mg Tablet'),
-(2, 'OBT-002', 'Amoxicillin 500mg Kapsul'),
-(3, 'OBT-003', 'Antasida Doen Tablet'),
-(4, 'OBT-004', 'Cefixime 100mg Kapsul'),
-(5, 'OBT-005', 'Cetirizine 10mg Tablet'),
-(6, 'OBT-006', 'Metformin 500mg Tablet'),
-(7, 'OBT-007', 'Amlodipine 5mg Tablet'),
-(8, 'OBT-008', 'Vitamin C 500mg IPI');
+INSERT INTO `obat` (`id`, `kode_obat`, `nama_obat`, `frekuensi_peresepan`) VALUES
+(1, 'OBT-001', 'Paracetamol 500mg Tablet', 3),
+(2, 'OBT-002', 'Amoxicillin 500mg Kapsul', 1),
+(3, 'OBT-003', 'Antasida Doen Tablet', 1),
+(4, 'OBT-004', 'Cefixime 100mg Kapsul', 0),
+(5, 'OBT-005', 'Cetirizine 10mg Tablet', 1),
+(6, 'OBT-006', 'Metformin 500mg Tablet', 0),
+(7, 'OBT-007', 'Amlodipine 5mg Tablet', 2),
+(8, 'OBT-008', 'Vitamin C 500mg IPI', 2);
 
 -- Data Pemeriksaan
 INSERT INTO `pemeriksaan` (`id`, `id_pasien`, `id_dokter`, `tgl_periksa`, `keluhan`, `tensi_darah`) VALUES

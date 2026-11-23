@@ -227,7 +227,7 @@ if (!$data) {
                 </div>
 
                 <div class="form-group">
-                    <label>Aturan Pakai / Dosis (Edit Text)</label>
+                    <label>Aturan Pakai / Dosis</label>
                     <input type="text" name="aturan_pakai" class="form-control" value="<?php echo htmlspecialchars($data['aturan_pakai'] ?? '3x1 Sehari Sesudah Makan'); ?>" placeholder="Contoh: 3x1 Sehari Sesudah Makan" required>
                 </div>
                 

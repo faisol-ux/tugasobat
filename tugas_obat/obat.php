@@ -13,12 +13,9 @@ if (!empty($search)) {
 
 $query = "
     SELECT 
-        o.*,
-        COUNT(po.id) AS total_diresepkan
+        o.*
     FROM obat o
-    LEFT JOIN pemeriksaan_obat po ON o.id = po.id_id_obat
     $where
-    GROUP BY o.id
     ORDER BY o.id ASC
 ";
 $result = mysqli_query($koneksi, $query);
@@ -102,7 +99,7 @@ $next_kode_obat = 'OBT-' . str_pad($last_id, 3, '0', STR_PAD_LEFT);
                             <td class="py-3 px-4 text-center">
                                 <span class="px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-700 text-slate-300 text-[11px] font-semibold">
                                     <i class="fa-solid fa-receipt text-teal-400 mr-1"></i>
-                                    <?= $row['total_diresepkan'] ?> kali
+                                    <?= (int)$row['frekuensi_peresepan'] ?> kali
                                 </span>
                             </td>
                             <td class="py-3 px-4 text-right whitespace-nowrap">
@@ -160,6 +157,18 @@ $next_kode_obat = 'OBT-' . str_pad($last_id, 3, '0', STR_PAD_LEFT);
                        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
             </div>
 
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Frekuensi Peresepan</label>
+                <div class="relative">
+                    <input type="number" name="frekuensi_peresepan" value="0" min="0" required
+                           class="w-full pl-3.5 pr-12 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs text-slate-400 font-semibold pointer-events-none">
+                        kali
+                    </span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">Jumlah frekuensi peresepan awal (default: 0)</p>
+            </div>
+
             <div class="pt-4 border-t border-slate-700 flex justify-end gap-2">
                 <button type="button" onclick="closeModalTambah()" 
                         class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold">
@@ -202,6 +211,18 @@ $next_kode_obat = 'OBT-' . str_pad($last_id, 3, '0', STR_PAD_LEFT);
                        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none">
             </div>
 
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Frekuensi Peresepan</label>
+                <div class="relative">
+                    <input type="number" name="frekuensi_peresepan" id="edit_frekuensi_peresepan" min="0" required
+                           class="w-full pl-3.5 pr-12 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs text-slate-400 font-semibold pointer-events-none">
+                        kali
+                    </span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">Ubah frekuensi peresepan obat ini</p>
+            </div>
+
             <div class="pt-4 border-t border-slate-700 flex justify-end gap-2">
                 <button type="button" onclick="closeModalEdit()" 
                         class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold">
@@ -228,6 +249,7 @@ $next_kode_obat = 'OBT-' . str_pad($last_id, 3, '0', STR_PAD_LEFT);
         document.getElementById('edit_id').value = data.id;
         document.getElementById('edit_kode_obat').value = data.kode_obat;
         document.getElementById('edit_nama_obat').value = data.nama_obat;
+        document.getElementById('edit_frekuensi_peresepan').value = data.frekuensi_peresepan !== undefined ? data.frekuensi_peresepan : 0;
         document.getElementById('modalEdit').classList.remove('hidden');
     }
     function closeModalEdit() {

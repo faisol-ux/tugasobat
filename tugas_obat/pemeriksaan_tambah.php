@@ -181,9 +181,9 @@ $obat_list = mysqli_query($koneksi, "SELECT id, kode_obat, nama_obat FROM obat O
                                     <div class="text-[10px] text-amber-400 font-mono"><?= htmlspecialchars($ob['kode_obat']) ?></div>
                                 </div>
                             </label>
-                            <!-- Edit Text Aturan Pakai -->
+                            <!-- Aturan Pakai Input -->
                             <div class="mt-2.5 hidden obat-aturan-box" id="aturan_box_<?= $ob['id'] ?>">
-                                <label class="block text-[10px] font-semibold text-purple-300 mb-1">Edit Aturan Pakai (Edit Text):</label>
+                                <label class="block text-[10px] font-semibold text-purple-300 mb-1">Aturan Pakai / Dosis:</label>
                                 <input type="text" name="aturan_pakai[<?= $ob['id'] ?>]" value="3x1 Sehari Sesudah Makan" placeholder="Contoh: 3x1 sehari sesudah makan"
                                        class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 focus:border-purple-500 rounded-lg text-white font-mono text-[11px] focus:ring-1 focus:ring-purple-400 focus:outline-none">
                             </div>

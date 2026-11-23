@@ -346,7 +346,7 @@ if(isset($_GET['hapus'])){
                     </div>
 
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label>Aturan Pakai / Dosis (Edit Text)</label>
+                        <label>Aturan Pakai / Dosis</label>
                         <input type="text" name="aturan_pakai" class="form-control" value="3x1 Sehari Sesudah Makan"
                             placeholder="Contoh: 3x1 Sehari Sesudah Makan" required>
                     </div>

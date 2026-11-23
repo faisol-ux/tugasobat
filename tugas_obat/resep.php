@@ -108,7 +108,7 @@ $periksa_options = mysqli_query($koneksi, "
                     <i class="fa-solid fa-prescription-bottle-medical text-purple-400"></i>
                     <span>Tabel Resep Obat (pemeriksaan_obat)</span>
                 </h3>
-                <p class="text-[11px] text-slate-400 mt-0.5">Relasi kunci antara `pemeriksaan.id` dan `obat.id` (Dapat diedit teks aturan pakai)</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Relasi data peresepan antara pemeriksaan klinis dan obat yang diberikan</p>
             </div>
             <span class="text-xs bg-purple-500/10 text-purple-300 border border-purple-500/20 px-3 py-1 rounded-full font-mono">
                 <?= mysqli_num_rows($result) ?> Data
@@ -124,7 +124,7 @@ $periksa_options = mysqli_query($koneksi, "
                         <th class="py-3 px-4">Pasien Penerima</th>
                         <th class="py-3 px-4">Dokter Peresep</th>
                         <th class="py-3 px-4">Obat Diberikan</th>
-                        <th class="py-3 px-4">Aturan Pakai (Edit Text)</th>
+                        <th class="py-3 px-4">Aturan Pakai</th>
                         <th class="py-3 px-4 text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -172,7 +172,7 @@ $periksa_options = mysqli_query($koneksi, "
                             </td>
                             <td class="py-3 px-4 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-1.5">
-                                    <!-- Tombol Edit Resep (Edit Text) -->
+                                    <!-- Tombol Edit Resep -->
                                     <button onclick="openModalEditResep(<?= htmlspecialchars(json_encode([
                                                 'id' => $row['id_pemeriksaan_obat'],
                                                 'id_pemeriksaan' => $row['id_pemeriksaan'],
@@ -256,10 +256,10 @@ $periksa_options = mysqli_query($koneksi, "
                 </select>
             </div>
 
-            <!-- EDIT TEXT ATURAN PAKAI / DOSIS -->
+            <!-- ATURAN PAKAI / DOSIS -->
             <div>
                 <label class="block text-xs font-semibold text-slate-300 mb-1">
-                    Aturan Pakai / Catatan Dosis (Edit Text) <span class="text-rose-400">*</span>
+                    Aturan Pakai / Catatan Dosis <span class="text-rose-400">*</span>
                 </label>
                 <input type="text" name="aturan_pakai" id="tambah_aturan_pakai" 
                        value="3x1 Sehari Sesudah Makan" required
@@ -290,7 +290,7 @@ $periksa_options = mysqli_query($koneksi, "
     </div>
 </div>
 
-<!-- ================= MODAL EDIT RESEP (EDIT TEXT ATURAN PAKAI & OBAT) ================= -->
+<!-- ================= MODAL EDIT RESEP ================= -->
 <div id="modalEditResep" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-fade-in">
         <div class="p-5 border-b border-slate-700 flex items-center justify-between">
@@ -342,10 +342,10 @@ $periksa_options = mysqli_query($koneksi, "
                 </select>
             </div>
 
-            <!-- EDIT TEXT ATURAN PAKAI / DOSIS -->
+            <!-- ATURAN PAKAI / DOSIS -->
             <div>
                 <label class="block text-xs font-bold text-amber-300 uppercase tracking-wider mb-1">
-                    Aturan Pakai / Catatan Resep (Edit Text) <span class="text-rose-400">*</span>
+                    Aturan Pakai / Catatan Resep <span class="text-rose-400">*</span>
                 </label>
                 <input type="text" name="aturan_pakai" id="edit_aturan_pakai" required
                        placeholder="Contoh: 3x1 sehari sesudah makan"

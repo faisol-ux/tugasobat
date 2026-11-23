@@ -7,8 +7,9 @@ require_staff();
 $aksi = $_GET['aksi'] ?? '';
 
 if ($aksi === 'tambah' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $kode = clean($_POST['kode_obat']);
-    $nama = clean($_POST['nama_obat']);
+    $kode      = clean($_POST['kode_obat']);
+    $nama      = clean($_POST['nama_obat']);
+    $frekuensi = isset($_POST['frekuensi_peresepan']) ? (int)$_POST['frekuensi_peresepan'] : 0;
 
     if (empty($kode) || empty($nama)) {
         set_flash('danger', 'Kode obat dan nama obat wajib diisi.');
@@ -17,9 +18,9 @@ if ($aksi === 'tambah' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if (mysqli_num_rows($cek) > 0) {
             set_flash('danger', "Kode obat '$kode' sudah terdaftar.");
         } else {
-            $insert = mysqli_query($koneksi, "INSERT INTO obat (kode_obat, nama_obat) VALUES ('$kode', '$nama')");
+            $insert = mysqli_query($koneksi, "INSERT INTO obat (kode_obat, nama_obat, frekuensi_peresepan) VALUES ('$kode', '$nama', $frekuensi)");
             if ($insert) {
-                set_flash('success', "Obat $nama berhasil ditambahkan.");
+                set_flash('success', "Obat $nama berhasil ditambahkan dengan frekuensi peresepan $frekuensi kali.");
             } else {
                 set_flash('danger', "Gagal menambah obat: " . mysqli_error($koneksi));
             }
@@ -30,17 +31,18 @@ if ($aksi === 'tambah' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($aksi === 'edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id   = (int)$_POST['id'];
-    $kode = clean($_POST['kode_obat']);
-    $nama = clean($_POST['nama_obat']);
+    $id        = (int)$_POST['id'];
+    $kode      = clean($_POST['kode_obat']);
+    $nama      = clean($_POST['nama_obat']);
+    $frekuensi = isset($_POST['frekuensi_peresepan']) ? (int)$_POST['frekuensi_peresepan'] : 0;
 
     $cek = mysqli_query($koneksi, "SELECT id FROM obat WHERE kode_obat='$kode' AND id != $id");
     if (mysqli_num_rows($cek) > 0) {
         set_flash('danger', "Kode obat '$kode' sudah digunakan oleh obat lain.");
     } else {
-        $update = mysqli_query($koneksi, "UPDATE obat SET kode_obat='$kode', nama_obat='$nama' WHERE id=$id");
+        $update = mysqli_query($koneksi, "UPDATE obat SET kode_obat='$kode', nama_obat='$nama', frekuensi_peresepan=$frekuensi WHERE id=$id");
         if ($update) {
-            set_flash('success', "Data obat $nama berhasil diperbarui.");
+            set_flash('success', "Data obat $nama berhasil diperbarui (Frekuensi: $frekuensi kali).");
         } else {
             set_flash('danger', "Gagal memperbarui obat: " . mysqli_error($koneksi));
         }
