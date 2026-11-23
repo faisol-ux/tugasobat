@@ -2,11 +2,9 @@
 require_once __DIR__ . '/koneksi.php';
 require_once __DIR__ . '/auth.php';
 
-// Cek autentikasi
 check_auth();
 $user = current_user();
 
-// Tentukan menu aktif
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
@@ -16,7 +14,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?? 'SIMRS' ?> - Sistem Informasi Rumah Sakit</title>
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -48,7 +45,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -67,13 +63,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
 </head>
 <body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex">
 
-    <!-- SIDEBAR -->
     <?php include __DIR__ . '/sidebar.php'; ?>
 
-    <!-- MAIN CONTENT WRAPPER -->
     <div class="flex-1 flex flex-col min-w-0 min-h-screen bg-slate-900 overflow-y-auto">
         
-        <!-- TOP NAVBAR -->
         <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-6 py-3.5 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <button id="sidebarToggle" class="md:hidden text-slate-400 hover:text-white p-2 rounded-lg bg-slate-800 border border-slate-700">
@@ -87,9 +80,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </div>
             </div>
 
-            <!-- Profile & Info -->
             <div class="flex items-center gap-3">
-                <!-- User Badge -->
                 <div class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80">
                     <?php
                         $role_bg = is_pasien() ? 'bg-sky-500/20 text-sky-400 border-sky-500/30' : (is_admin() ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' : 'bg-teal-500/20 text-teal-400 border-teal-500/30');
@@ -114,7 +105,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </div>
         </header>
 
-        <!-- TOP QUICK NAVIGATION BAR -->
         <nav class="bg-slate-950/80 border-b border-slate-800/80 px-6 py-2.5 flex items-center justify-between overflow-x-auto gap-3">
             <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1.5">
@@ -122,14 +112,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <span class="hidden sm:inline">Navigasi:</span>
                 </span>
 
-                <!-- 1. Tombol Pasien (Semua Role Bisa Akses) -->
                 <a href="pasien.php" 
                    class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all <?= ($current_page == 'pasien.php' || str_contains($current_page, 'pasien_')) ? 'bg-sky-500 text-slate-950 font-bold shadow-md shadow-sky-500/25' : 'bg-slate-800/90 hover:bg-slate-800 text-sky-300 border border-slate-700/80' ?>">
                     <i class="fa-solid fa-hospital-user text-xs"></i>
                     <span>Pasien</span>
                 </a>
 
-                <!-- 2. Tombol Dokter (Semua Role Bisa Akses, Pasien hanya melihat) -->
                 <a href="dokter.php" 
                    class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all <?= ($current_page == 'dokter.php' || str_contains($current_page, 'dokter_')) ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/25' : 'bg-slate-800/90 hover:bg-slate-800 text-emerald-300 border border-slate-700/80' ?>">
                     <i class="fa-solid fa-user-doctor text-xs"></i>
@@ -137,14 +125,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </a>
 
                 <?php if (!is_pasien()): ?>
-                    <!-- 3. Tombol Obat (Hanya Dokter & Admin) -->
                     <a href="obat.php" 
                        class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all <?= ($current_page == 'obat.php' || str_contains($current_page, 'obat_')) ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/25' : 'bg-slate-800/90 hover:bg-slate-800 text-amber-300 border border-slate-700/80' ?>">
                         <i class="fa-solid fa-pills text-xs"></i>
                         <span>Obat</span>
                     </a>
 
-                    <!-- 4. Tombol Pemeriksaan (Hanya Dokter & Admin) -->
                     <a href="pemeriksaan.php" 
                        class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all <?= (str_contains($current_page, 'pemeriksaan')) ? 'bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/25' : 'bg-slate-800/90 hover:bg-slate-800 text-teal-300 border border-slate-700/80' ?>">
                         <i class="fa-solid fa-stethoscope text-xs"></i>
@@ -157,14 +143,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <?php endif; ?>
             </div>
 
-            <!-- Role Indicator -->
             <div class="text-[11px] text-slate-400 hidden md:flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full <?= is_pasien() ? 'bg-sky-400' : (is_admin() ? 'bg-purple-400' : 'bg-emerald-400') ?> animate-pulse"></span>
                 <span>Role: <strong class="text-white"><?= strtoupper($user['role']) ?></strong></span>
             </div>
         </nav>
 
-        <!-- MAIN BODY CONTAINER -->
         <main class="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
             
             <?php 

@@ -7,7 +7,6 @@ require_staff();
 
 <div class="space-y-8">
 
-    <!-- INFO BOX -->
     <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
             <h2 class="text-lg font-bold text-white flex items-center gap-2">
@@ -24,7 +23,6 @@ require_staff();
         </a>
     </div>
 
-    <!-- MERMAID ERD DIAGRAM -->
     <div class="p-6 md:p-8 rounded-2xl bg-slate-950 border border-slate-800 shadow-2xl overflow-x-auto">
         <h3 class="text-xs font-bold uppercase tracking-wider text-teal-400 mb-6 flex items-center gap-2">
             <i class="fa-solid fa-circle-nodes"></i>

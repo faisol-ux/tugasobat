@@ -3,7 +3,6 @@ $page_title = 'Dokter';
 $page_subtitle = 'Kelola staf medis, spesialisasi, dan hak akses login sistem';
 include __DIR__ . '/header.php';
 
-// Fitur Pencarian
 $search = clean($_GET['search'] ?? '');
 $where = "";
 if (!empty($search)) {
@@ -16,7 +15,6 @@ $result = mysqli_query($koneksi, $query);
 
 <div class="space-y-6">
 
-    <!-- BANNER KHUSUS PASIEN -->
     <?php if (is_pasien()): ?>
     <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs flex items-center gap-3">
         <i class="fa-solid fa-user-doctor text-xl text-emerald-400"></i>
@@ -27,9 +25,7 @@ $result = mysqli_query($koneksi, $query);
     </div>
     <?php endif; ?>
 
-    <!-- TOP TOOLBAR -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <!-- Form Search -->
         <form method="GET" action="dokter.php" class="relative flex-1 max-w-md">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -45,7 +41,7 @@ $result = mysqli_query($koneksi, $query);
         </form>
 
         <?php if (!is_pasien()): ?>
-        <!-- Tombol Tambah Dokter (Hanya Dokter & Admin) -->
+
         <button onclick="openModalTambah()" 
                 class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/20 text-xs flex items-center justify-center gap-2 transition-all">
             <i class="fa-solid fa-user-doctor"></i>
@@ -54,7 +50,6 @@ $result = mysqli_query($koneksi, $query);
         <?php endif; ?>
     </div>
 
-    <!-- TABEL DATA DOKTER -->
     <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl overflow-hidden shadow-xl">
         <div class="p-5 border-b border-slate-700/80 flex items-center justify-between">
             <div>
@@ -152,7 +147,6 @@ $result = mysqli_query($koneksi, $query);
 </div>
 
 <?php if (!is_pasien()): ?>
-<!-- ================= MODAL TAMBAH DOKTER ================= -->
 <div id="modalTambah" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden animate-fade-in max-h-[90vh] flex flex-col">
         <div class="p-5 border-b border-slate-700 flex items-center justify-between">
@@ -228,7 +222,6 @@ $result = mysqli_query($koneksi, $query);
     </div>
 </div>
 
-<!-- ================= MODAL EDIT DOKTER ================= -->
 <div id="modalEdit" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden animate-fade-in max-h-[90vh] flex flex-col">
         <div class="p-5 border-b border-slate-700 flex items-center justify-between">

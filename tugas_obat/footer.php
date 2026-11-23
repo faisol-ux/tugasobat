@@ -1,6 +1,5 @@
         </main>
 
-        <!-- FOOTER -->
         <footer class="border-t border-slate-800 bg-slate-950/40 px-6 py-4 text-center text-xs text-slate-500">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-2 max-w-7xl mx-auto">
                 <p>&copy; <?= date('Y') ?> <strong>SIM Rumah Sehat</strong> - Tugas Pemrograman Web Relasional Database</p>
@@ -10,9 +9,7 @@
 
     </div>
 
-    <!-- JAVASCRIPT HELPER -->
     <script>
-        // Sidebar Toggle (Mobile)
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebarClose = document.getElementById('sidebarClose');
@@ -33,7 +30,6 @@
         if (sidebarClose) sidebarClose.addEventListener('click', closeSidebar);
         if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
 
-        // SweetAlert Confirm Logout
         function confirmLogout(e) {
             e.preventDefault();
             Swal.fire({
@@ -55,7 +51,6 @@
             return false;
         }
 
-        // SweetAlert Confirm Delete
         function confirmDelete(url, namaItem) {
             Swal.fire({
                 title: 'Hapus Data?',

@@ -92,12 +92,23 @@ $periksa_options = mysqli_query($koneksi, "
             <?php endif; ?>
         </form>
 
-        <!-- Tambah Obat ke Pemeriksaan -->
-        <button onclick="openModalTambahResep()" 
-                class="px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 text-xs flex items-center justify-center gap-2 transition-all">
-            <i class="fa-solid fa-plus-circle"></i>
-            <span>Tambah Resep Obat</span>
-        </button>
+        <div class="flex items-center gap-2">
+            <!-- Tombol Cetak Rekap Resep -->
+            <a href="resep_cetak.php?mode=rekap<?= !empty($filter_obat) ? '&filter_obat=' . (int)$filter_obat : '' ?><?= !empty($filter_pasien) ? '&filter_pasien=' . (int)$filter_pasien : '' ?>" 
+               target="_blank"
+               class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 font-bold rounded-xl shadow-lg text-xs flex items-center justify-center gap-2 transition-all"
+               title="Cetak Laporan Rekapitulasi Resep Obat">
+                <i class="fa-solid fa-print"></i>
+                <span>Cetak Rekap Resep</span>
+            </a>
+
+            <!-- Tambah Obat ke Pemeriksaan -->
+            <button onclick="openModalTambahResep()" 
+                    class="px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 text-xs flex items-center justify-center gap-2 transition-all">
+                <i class="fa-solid fa-plus-circle"></i>
+                <span>Tambah Resep Obat</span>
+            </button>
+        </div>
     </div>
 
     <!-- TABEL DATA PEMERIKSAAN_OBAT -->
@@ -172,6 +183,13 @@ $periksa_options = mysqli_query($koneksi, "
                             </td>
                             <td class="py-3 px-4 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-1.5">
+                                    <!-- Tombol Cetak Resep -->
+                                    <a href="resep_cetak.php?id=<?= $row['id_pemeriksaan_obat'] ?>" 
+                                       target="_blank"
+                                       class="p-1.5 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 transition-colors" 
+                                       title="Cetak Salinan Resep Dokter">
+                                        <i class="fa-solid fa-print"></i>
+                                    </a>
                                     <!-- Tombol Edit Resep -->
                                     <button onclick="openModalEditResep(<?= htmlspecialchars(json_encode([
                                                 'id' => $row['id_pemeriksaan_obat'],
@@ -361,15 +379,22 @@ $periksa_options = mysqli_query($koneksi, "
                 </div>
             </div>
 
-            <div class="pt-4 border-t border-slate-700 flex justify-end gap-2">
-                <button type="button" onclick="closeModalEditResep()" 
-                        class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold">
-                    Batal
-                </button>
-                <button type="submit" 
-                        class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20">
-                    Simpan Perubahan Resep
-                </button>
+            <div class="pt-4 border-t border-slate-700 flex items-center justify-between gap-2">
+                <a id="btn_cetak_modal" href="#" target="_blank"
+                   class="px-3.5 py-2 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Cetak Resep Ini</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeModalEditResep()" 
+                            class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold">
+                        Batal
+                    </button>
+                    <button type="submit" 
+                            class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20">
+                        Simpan Perubahan Resep
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -392,6 +417,7 @@ $periksa_options = mysqli_query($koneksi, "
         document.getElementById('edit_id_pemeriksaan').value = data.id_pemeriksaan;
         document.getElementById('edit_id_id_obat').value = data.id_id_obat;
         document.getElementById('edit_aturan_pakai').value = data.aturan_pakai || '3x1 Sehari Sesudah Makan';
+        document.getElementById('btn_cetak_modal').href = 'resep_cetak.php?id=' + data.id;
         document.getElementById('modalEditResep').classList.remove('hidden');
         document.getElementById('edit_aturan_pakai').focus();
     }

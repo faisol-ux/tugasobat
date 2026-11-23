@@ -15,7 +15,6 @@ if ($aksi === 'tambah' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $jenis    = clean($_POST['jenis']);
     $spesialis= clean($_POST['spesialis']);
 
-    // Cek username unik
     $cek = mysqli_query($koneksi, "SELECT id FROM dokter WHERE username='$username'");
     if (mysqli_num_rows($cek) > 0) {
         set_flash('danger', "Username '$username' sudah digunakan dokter lain.");
@@ -44,7 +43,6 @@ if ($aksi === 'edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $jenis     = clean($_POST['jenis']);
     $spesialis = clean($_POST['spesialis']);
 
-    // Cek duplikasi username untuk dokter lain
     $cek = mysqli_query($koneksi, "SELECT id FROM dokter WHERE username='$username' AND id != $id");
     if (mysqli_num_rows($cek) > 0) {
         set_flash('danger', "Username '$username' sudah terdaftar.");
@@ -56,7 +54,6 @@ if ($aksi === 'edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $update = mysqli_query($koneksi, $sql);
         if ($update) {
-            // Perbarui session jika dokter yang sedang login mengedit profilnya sendiri
             if ($_SESSION['user_id'] == $id) {
                 $_SESSION['username']    = $username;
                 $_SESSION['nama_dokter'] = $nama;
@@ -74,7 +71,6 @@ if ($aksi === 'edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($aksi === 'hapus') {
     $id = (int)($_GET['id'] ?? 0);
-    // Jangan izinkan dokter menghapus dirinya sendiri yang sedang login
     if ($id == $_SESSION['user_id']) {
         set_flash('warning', "Anda tidak dapat menghapus akun Anda sendiri saat sedang login.");
     } else {

@@ -404,6 +404,9 @@ if(isset($_GET['hapus'])){
                             </td>
                             <td>
                                 <div class="action-btns">
+                                    <a href="cetak.php?id=<?php echo $data['id_resep_obat']; ?>" target="_blank" class="btn-cetak" style="background:#ebf8ff; color:#2b6cb0; border:1px solid #bee3f8; padding:6px 12px; border-radius:6px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
+                                        <i class="fas fa-print"></i> Cetak
+                                    </a>
                                     <a href="edit.php?id=<?php echo $data['id_resep_obat']; ?>" class="btn-edit">
                                         <i class="fas fa-edit"></i> Edit
                                     </a>

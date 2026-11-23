@@ -1,8 +1,4 @@
 <?php
-/**
- * Middleware Autentikasi Multi-Role: Dokter, Admin, dan Pasien
- * Project: SIMRS (Sistem Informasi Rumah Sakit)
- */
 require_once __DIR__ . '/koneksi.php';
 
 function is_logged_in() {
@@ -23,7 +19,7 @@ function current_user() {
     }
     return [
         'id'          => $_SESSION['user_id'],
-        'role'        => $_SESSION['role'] ?? 'dokter', // 'admin', 'dokter', 'pasien'
+        'role'        => $_SESSION['role'] ?? 'dokter',
         'username'    => $_SESSION['username'] ?? '',
         'nama_user'   => $_SESSION['nama_user'] ?? $_SESSION['nama_dokter'] ?? 'Pengguna',
         'nama_dokter' => $_SESSION['nama_dokter'] ?? ($_SESSION['nama_user'] ?? 'Dokter'),
@@ -44,10 +40,6 @@ function is_pasien() {
     return is_logged_in() && (($_SESSION['role'] ?? '') === 'pasien');
 }
 
-/**
- * Hanya Dokter dan Admin yang boleh mengakses halaman/aksi tertentu
- * Pasien dilarang dan otomatis dialihkan ke Dashboard dengan pesan peringatan
- */
 function require_staff() {
     check_auth();
     if (is_pasien()) {
