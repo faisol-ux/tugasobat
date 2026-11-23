@@ -37,6 +37,7 @@ $data = mysqli_fetch_assoc($res);
 $query_obat = "
     SELECT 
         po.id AS id_pemeriksaan_obat,
+        po.aturan_pakai,
         o.id AS id_obat,
         o.kode_obat,
         o.nama_obat
@@ -156,6 +157,7 @@ $usia = $tgl_lahir->diff($today)->y;
                                 <th class="py-3 px-4 w-12 text-center">No</th>
                                 <th class="py-3 px-4">Kode Obat</th>
                                 <th class="py-3 px-4">Nama Obat & Sediaan</th>
+                                <th class="py-3 px-4">Aturan Pakai</th>
                                 <th class="py-3 px-4 text-center">Status</th>
                             </tr>
                         </thead>
@@ -173,6 +175,12 @@ $usia = $tgl_lahir->diff($today)->y;
                                     </td>
                                     <td class="py-3 px-4">
                                         <div class="font-bold text-white"><?= htmlspecialchars($ob['nama_obat']) ?></div>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span class="px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/30 text-purple-300 font-mono text-[11px]">
+                                            <i class="fa-solid fa-clock text-[9px] mr-1"></i>
+                                            <?= htmlspecialchars(!empty($ob['aturan_pakai']) ? $ob['aturan_pakai'] : '3x1 Sehari Sesudah Makan') ?>
+                                        </span>
                                     </td>
                                     <td class="py-3 px-4 text-center">
                                         <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-semibold">

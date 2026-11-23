@@ -33,13 +33,14 @@ if ($aksi === 'tambah' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         // Update keluhan & tensi di tabel pasien agar selalu sinkron
         mysqli_query($koneksi, "UPDATE pasien SET keluhan = '$keluhan', tensi_darah = '$tensi_darah' WHERE id = $id_pasien");
 
-        // 2. Simpan obat yang dipilih ke tabel pemeriksaan_obat (kolom: id_pemeriksaan, id_id_obat)
+        // 2. Simpan obat yang dipilih ke tabel pemeriksaan_obat (kolom: id_pemeriksaan, id_id_obat, aturan_pakai)
         if (!empty($obat_ids) && is_array($obat_ids)) {
             foreach ($obat_ids as $id_obat) {
                 $id_obat_clean = (int)$id_obat;
+                $aturan = !empty($_POST['aturan_pakai'][$id_obat_clean]) ? clean($_POST['aturan_pakai'][$id_obat_clean]) : '3x1 Sehari Sesudah Makan';
                 mysqli_query($koneksi, "
-                    INSERT INTO pemeriksaan_obat (id_pemeriksaan, id_id_obat) 
-                    VALUES ($id_pemeriksaan, $id_obat_clean)
+                    INSERT INTO pemeriksaan_obat (id_pemeriksaan, id_id_obat, aturan_pakai) 
+                    VALUES ($id_pemeriksaan, $id_obat_clean, '$aturan')
                 ");
             }
         }
@@ -83,13 +84,14 @@ if ($aksi === 'edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         // Hapus obat lama terkait pemeriksaan ini
         mysqli_query($koneksi, "DELETE FROM pemeriksaan_obat WHERE id_pemeriksaan = $id");
 
-        // Masukkan obat baru yang dicentang
+        // Masukkan obat baru yang dicentang beserta aturan pakainya
         if (!empty($obat_ids) && is_array($obat_ids)) {
             foreach ($obat_ids as $id_obat) {
                 $id_obat_clean = (int)$id_obat;
+                $aturan = !empty($_POST['aturan_pakai'][$id_obat_clean]) ? clean($_POST['aturan_pakai'][$id_obat_clean]) : '3x1 Sehari Sesudah Makan';
                 mysqli_query($koneksi, "
-                    INSERT INTO pemeriksaan_obat (id_pemeriksaan, id_id_obat) 
-                    VALUES ($id, $id_obat_clean)
+                    INSERT INTO pemeriksaan_obat (id_pemeriksaan, id_id_obat, aturan_pakai) 
+                    VALUES ($id, $id_obat_clean, '$aturan')
                 ");
             }
         }

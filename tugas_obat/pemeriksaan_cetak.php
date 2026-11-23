@@ -34,7 +34,8 @@ $data = mysqli_fetch_assoc($res);
 $query_obat = "
     SELECT 
         o.kode_obat,
-        o.nama_obat
+        o.nama_obat,
+        po.aturan_pakai
     FROM pemeriksaan_obat po
     JOIN obat o ON po.id_id_obat = o.id
     WHERE po.id_pemeriksaan = $id
@@ -170,7 +171,7 @@ $usia = $tgl_lahir->diff($today)->y;
                             <td class="py-2.5 px-3 text-center"><?= $no++ ?></td>
                             <td class="py-2.5 px-3 font-mono font-bold"><?= htmlspecialchars($ob['kode_obat']) ?></td>
                             <td class="py-2.5 px-3 font-bold text-slate-900"><?= htmlspecialchars($ob['nama_obat']) ?></td>
-                            <td class="py-2.5 px-3 text-right text-slate-600">Sesuai petunjuk dokter / apoteker</td>
+                            <td class="py-2.5 px-3 text-right font-medium text-slate-800"><?= htmlspecialchars(!empty($ob['aturan_pakai']) ? $ob['aturan_pakai'] : '3x1 Sehari Sesudah Makan') ?></td>
                         </tr>
                     <?php endwhile; ?>
                     <?php else: ?>

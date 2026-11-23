@@ -82,6 +82,7 @@ CREATE TABLE `pemeriksaan_obat` (
   `id` int(5) NOT NULL AUTO_INCREMENT,
   `id_pemeriksaan` int(5) NOT NULL,
   `id_id_obat` int(5) NOT NULL,
+  `aturan_pakai` varchar(255) NOT NULL DEFAULT '3x1 Sehari Sesudah Makan',
   PRIMARY KEY (`id`),
   KEY `id_pemeriksaan` (`id_pemeriksaan`),
   KEY `id_id_obat` (`id_id_obat`),
@@ -96,7 +97,8 @@ CREATE OR REPLACE VIEW `resep_obat` AS
 SELECT 
   `id` AS `id_resep_obat`,
   `id_pemeriksaan` AS `id_periksa`,
-  `id_id_obat` AS `id_obat`
+  `id_id_obat` AS `id_obat`,
+  `aturan_pakai`
 FROM `pemeriksaan_obat`;
 
 -- --------------------------------------------------------

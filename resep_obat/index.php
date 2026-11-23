@@ -283,6 +283,11 @@ if(isset($_GET['hapus'])){
                         <label>ID Obat</label>
                         <input type="number" name="id_obat" class="form-control" placeholder="Masukkan ID Obat..." required>
                     </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Aturan Pakai / Dosis (Edit Text)</label>
+                        <input type="text" name="aturan_pakai" class="form-control" value="3x1 Sehari Sesudah Makan" placeholder="Contoh: 3x1 Sehari Sesudah Makan" required>
+                    </div>
                     
                     <div class="form-action">
                         <button type="submit">
@@ -305,6 +310,7 @@ if(isset($_GET['hapus'])){
                             <th>ID Resep</th>
                             <th>ID Pemeriksaan</th>
                             <th>ID Obat</th>
+                            <th>Aturan Pakai</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -314,9 +320,9 @@ if(isset($_GET['hapus'])){
                         $query = mysqli_query($koneksi, "SELECT * FROM resep_obat ORDER BY id_resep_obat DESC");
                         
                         if(!$query) {
-                            echo "<tr><td colspan='4'>Query Error: " . mysqli_error($koneksi) . "</td></tr>";
+                            echo "<tr><td colspan='5'>Query Error: " . mysqli_error($koneksi) . "</td></tr>";
                         } else if(mysqli_num_rows($query) == 0){
-                            echo "<tr><td colspan='4' style='padding: 30px; color:var(--text-gray);'><i class='fas fa-folder-open' style='font-size:24px;margin-bottom:10px;display:block;color:#cbd5e0;'></i> Belum ada data resep obat.</td></tr>";
+                            echo "<tr><td colspan='5' style='padding: 30px; color:var(--text-gray);'><i class='fas fa-folder-open' style='font-size:24px;margin-bottom:10px;display:block;color:#cbd5e0;'></i> Belum ada data resep obat.</td></tr>";
                         }
 
                         while ($data = mysqli_fetch_array($query)) {
@@ -325,6 +331,7 @@ if(isset($_GET['hapus'])){
                             <td class="td-id">#<?php echo $data['id_resep_obat']; ?></td>
                             <td><?php echo $data['id_periksa']; ?></td>
                             <td><?php echo $data['id_obat']; ?></td>
+                            <td><span style="font-weight:600; color:#1e3a5f;"><?php echo htmlspecialchars($data['aturan_pakai'] ?? '-'); ?></span></td>
                             <td>
                                 <div class="action-btns">
                                     <a href="edit.php?id=<?php echo $data['id_resep_obat']; ?>" class="btn-edit">

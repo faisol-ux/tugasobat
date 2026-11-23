@@ -30,7 +30,7 @@ $query = "
         pas.tgl_lahir,
         dok.nama_dokter,
         dok.spesialis,
-        GROUP_CONCAT(CONCAT(o.kode_obat, '||', o.nama_obat) SEPARATOR ';;') AS obat_list,
+        GROUP_CONCAT(CONCAT(o.kode_obat, '||', o.nama_obat, '||', po.aturan_pakai) SEPARATOR ';;') AS obat_list,
         COUNT(po.id) AS jumlah_obat
     FROM pemeriksaan p
     JOIN pasien pas ON p.id_pasien = pas.id
@@ -150,8 +150,9 @@ $dokters = mysqli_query($koneksi, "SELECT id, nama_dokter FROM dokter ORDER BY n
                                             $parts = explode('||', $item);
                                             $kod = $parts[0] ?? '';
                                             $nam = $parts[1] ?? '';
+                                            $aturan = $parts[2] ?? '';
                                         ?>
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-medium" title="<?= htmlspecialchars($nam) ?>">
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-medium" title="<?= htmlspecialchars($nam) ?> (<?= htmlspecialchars($aturan) ?>)">
                                                 <i class="fa-solid fa-capsules text-[9px]"></i>
                                                 <span><?= htmlspecialchars($nam) ?></span>
                                             </span>

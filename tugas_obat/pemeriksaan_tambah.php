@@ -170,16 +170,24 @@ $obat_list = mysqli_query($koneksi, "SELECT id, kode_obat, nama_obat FROM obat O
                 </div>
 
                 <!-- Grid Checkbox Obat -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-1" id="obatContainer">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-72 overflow-y-auto p-1" id="obatContainer">
                     <?php while ($ob = mysqli_fetch_assoc($obat_list)): ?>
-                        <label class="obat-item flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-700/70 hover:border-amber-500/50 cursor-pointer transition-all select-none">
-                            <input type="checkbox" name="obat_ids[]" value="<?= $ob['id'] ?>" onchange="updateCounter()"
-                                   class="w-4 h-4 rounded text-amber-500 bg-slate-800 border-slate-600 focus:ring-amber-400 focus:ring-offset-slate-900">
-                            <div class="min-w-0">
-                                <div class="text-xs font-bold text-white truncate obat-nama"><?= htmlspecialchars($ob['nama_obat']) ?></div>
-                                <div class="text-[10px] text-amber-400 font-mono"><?= htmlspecialchars($ob['kode_obat']) ?></div>
+                        <div class="obat-item p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-700/70 hover:border-amber-500/50 transition-all">
+                            <label class="flex items-center gap-3 cursor-pointer select-none">
+                                <input type="checkbox" name="obat_ids[]" value="<?= $ob['id'] ?>" onchange="toggleObatAturan(this); updateCounter()"
+                                       class="w-4 h-4 rounded text-amber-500 bg-slate-800 border-slate-600 focus:ring-amber-400 focus:ring-offset-slate-900">
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-xs font-bold text-white truncate obat-nama"><?= htmlspecialchars($ob['nama_obat']) ?></div>
+                                    <div class="text-[10px] text-amber-400 font-mono"><?= htmlspecialchars($ob['kode_obat']) ?></div>
+                                </div>
+                            </label>
+                            <!-- Edit Text Aturan Pakai -->
+                            <div class="mt-2.5 hidden obat-aturan-box" id="aturan_box_<?= $ob['id'] ?>">
+                                <label class="block text-[10px] font-semibold text-purple-300 mb-1">Edit Aturan Pakai (Edit Text):</label>
+                                <input type="text" name="aturan_pakai[<?= $ob['id'] ?>]" value="3x1 Sehari Sesudah Makan" placeholder="Contoh: 3x1 sehari sesudah makan"
+                                       class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 focus:border-purple-500 rounded-lg text-white font-mono text-[11px] focus:ring-1 focus:ring-purple-400 focus:outline-none">
                             </div>
-                        </label>
+                        </div>
                     <?php endwhile; ?>
                 </div>
             </div>
@@ -240,6 +248,17 @@ $obat_list = mysqli_query($koneksi, "SELECT id, kode_obat, nama_obat FROM obat O
         } else {
             if (badgeKeluhan) badgeKeluhan.classList.add('hidden');
             if (badgeTensi) badgeTensi.classList.add('hidden');
+        }
+    }
+
+    function toggleObatAturan(checkbox) {
+        const box = document.getElementById('aturan_box_' + checkbox.value);
+        if (box) {
+            if (checkbox.checked) {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
         }
     }
 

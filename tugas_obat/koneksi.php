@@ -1,14 +1,9 @@
 <?php
-/**
- * Koneksi Database & Helper Functions
- * Project: Sistem Informasi Rumah Sakit / Klinik (Tugas Obat)
- */
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Matikan report exception otomatis agar kompatibel dengan PHP 8.1 / 8.2
 mysqli_report(MYSQLI_REPORT_OFF);
 
 $host = "localhost";
@@ -16,11 +11,9 @@ $user = "root";
 $pass = "";
 $db   = "rumah sakit";
 
-// 1. Coba koneksi langsung ke database atau server MySQL
 $koneksi = @mysqli_connect($host, $user, $pass, $db);
 
 if (!$koneksi) {
-    // Jika gagal karena database belum ada, konek tanpa db lalu buat
     $koneksi = @mysqli_connect($host, $user, $pass);
     if (!$koneksi) {
         die("
@@ -32,11 +25,9 @@ if (!$koneksi) {
         ");
     }
 
-    // Buat database jika belum ada
     mysqli_query($koneksi, "CREATE DATABASE IF NOT EXISTS `$db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     mysqli_select_db($koneksi, $db);
 
-    // Import database.sql otomatis
     $sql_file = __DIR__ . '/database.sql';
     if (file_exists($sql_file)) {
         $sql_commands = file_get_contents($sql_file);
@@ -51,21 +42,11 @@ if (!$koneksi) {
 
 mysqli_set_charset($koneksi, "utf8mb4");
 
-// ==========================================
-// HELPER FUNCTIONS
-// ==========================================
-
-/**
- * Escape string untuk keamanan query
- */
 function clean($str) {
     global $koneksi;
     return mysqli_real_escape_string($koneksi, trim($str ?? ''));
 }
 
-/**
- * Format tanggal Indonesia (contoh: 14 Mei 1982)
- */
 function tgl_indo($tanggal) {
     if (!$tanggal || $tanggal == '0000-00-00') return '-';
     $bulan = [
@@ -77,19 +58,13 @@ function tgl_indo($tanggal) {
     return $pecahkan[2] . ' ' . $bulan[(int)$pecahkan[1]] . ' ' . $pecahkan[0];
 }
 
-/**
- * Set flash message (notifikasi toast/alert)
- */
 function set_flash($type, $message) {
     $_SESSION['flash'] = [
-        'type' => $type, // 'success', 'danger', 'warning', 'info'
+        'type' => $type, 
         'message' => $message
     ];
 }
 
-/**
- * Ambil flash message lalu hapus
- */
 function get_flash() {
     if (isset($_SESSION['flash'])) {
         $flash = $_SESSION['flash'];

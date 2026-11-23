@@ -225,6 +225,11 @@ if (!$data) {
                     <label>ID Obat</label>
                     <input type="number" name="id_obat" class="form-control" value="<?php echo $data['id_obat']; ?>" required>
                 </div>
+
+                <div class="form-group">
+                    <label>Aturan Pakai / Dosis (Edit Text)</label>
+                    <input type="text" name="aturan_pakai" class="form-control" value="<?php echo htmlspecialchars($data['aturan_pakai'] ?? '3x1 Sehari Sesudah Makan'); ?>" placeholder="Contoh: 3x1 Sehari Sesudah Makan" required>
+                </div>
                 
                 <div class="action-btns">
                     <button type="submit">

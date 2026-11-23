@@ -13,11 +13,13 @@ if (!$q || mysqli_num_rows($q) == 0) {
 }
 $periksa = mysqli_fetch_assoc($q);
 
-// Ambil ID obat yang saat ini sudah diresepkan untuk pemeriksaan ini
-$q_selected_obat = mysqli_query($koneksi, "SELECT id_id_obat FROM pemeriksaan_obat WHERE id_pemeriksaan = $id");
+// Ambil ID obat & aturan pakai yang saat ini sudah diresepkan untuk pemeriksaan ini
+$q_selected_obat = mysqli_query($koneksi, "SELECT id_id_obat, aturan_pakai FROM pemeriksaan_obat WHERE id_pemeriksaan = $id");
 $selected_obat_ids = [];
+$selected_obat_aturan = [];
 while ($row = mysqli_fetch_assoc($q_selected_obat)) {
     $selected_obat_ids[] = $row['id_id_obat'];
+    $selected_obat_aturan[$row['id_id_obat']] = $row['aturan_pakai'];
 }
 
 // Data relasi
@@ -155,18 +157,27 @@ $obat_list   = mysqli_query($koneksi, "SELECT id, kode_obat, nama_obat FROM obat
                 </div>
 
                 <!-- Grid Checkbox Obat -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-1">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-72 overflow-y-auto p-1">
                     <?php while ($ob = mysqli_fetch_assoc($obat_list)): 
                         $isChecked = in_array($ob['id'], $selected_obat_ids);
+                        $aturanVal = $selected_obat_aturan[$ob['id']] ?? '3x1 Sehari Sesudah Makan';
                     ?>
-                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 border <?= $isChecked ? 'border-amber-500 bg-amber-500/5' : 'border-slate-700/70' ?> cursor-pointer transition-all select-none">
-                            <input type="checkbox" name="obat_ids[]" value="<?= $ob['id'] ?>" <?= $isChecked ? 'checked' : '' ?> onchange="updateCounter()"
-                                   class="w-4 h-4 rounded text-amber-500 bg-slate-800 border-slate-600 focus:ring-amber-400 focus:ring-offset-slate-900">
-                            <div class="min-w-0">
-                                <div class="text-xs font-bold text-white truncate"><?= htmlspecialchars($ob['nama_obat']) ?></div>
-                                <div class="text-[10px] text-amber-400 font-mono"><?= htmlspecialchars($ob['kode_obat']) ?></div>
+                        <div class="p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 border <?= $isChecked ? 'border-amber-500 bg-amber-500/5' : 'border-slate-700/70' ?> transition-all">
+                            <label class="flex items-center gap-3 cursor-pointer select-none">
+                                <input type="checkbox" name="obat_ids[]" value="<?= $ob['id'] ?>" <?= $isChecked ? 'checked' : '' ?> onchange="toggleObatAturan(this); updateCounter()"
+                                       class="w-4 h-4 rounded text-amber-500 bg-slate-800 border-slate-600 focus:ring-amber-400 focus:ring-offset-slate-900">
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-xs font-bold text-white truncate"><?= htmlspecialchars($ob['nama_obat']) ?></div>
+                                    <div class="text-[10px] text-amber-400 font-mono"><?= htmlspecialchars($ob['kode_obat']) ?></div>
+                                </div>
+                            </label>
+                            <!-- Edit Text Aturan Pakai -->
+                            <div class="mt-2.5 <?= $isChecked ? '' : 'hidden' ?> obat-aturan-box" id="aturan_box_<?= $ob['id'] ?>">
+                                <label class="block text-[10px] font-semibold text-amber-300 mb-1">Edit Aturan Pakai (Edit Text):</label>
+                                <input type="text" name="aturan_pakai[<?= $ob['id'] ?>]" value="<?= htmlspecialchars($aturanVal) ?>" placeholder="Contoh: 3x1 sehari sesudah makan"
+                                       class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-lg text-white font-mono text-[11px] focus:ring-1 focus:ring-amber-400 focus:outline-none">
                             </div>
-                        </label>
+                        </div>
                     <?php endwhile; ?>
                 </div>
             </div>
@@ -203,6 +214,17 @@ $obat_list   = mysqli_query($koneksi, "SELECT id, kode_obat, nama_obat FROM obat
             }
             if (tensi) {
                 document.getElementById('tensi_darah').value = tensi;
+            }
+        }
+    }
+
+    function toggleObatAturan(checkbox) {
+        const box = document.getElementById('aturan_box_' + checkbox.value);
+        if (box) {
+            if (checkbox.checked) {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
             }
         }
     }
